@@ -86,8 +86,46 @@ SIGNALS = [
 
 def render():
     st.markdown('<h1 class="main-header">AI Signals</h1>', unsafe_allow_html=True)
-    st.markdown("ML ensemble predictions with SHAP-explained feature importance for each signal.")
+    st.markdown('<p class="sub-header">ML ensemble predictions with SHAP-explained feature importance for each signal.</p>', unsafe_allow_html=True)
     st.divider()
+
+    # Summary metrics
+    buy_count = sum(1 for s in SIGNALS if s["action"] == "BUY")
+    sell_count = sum(1 for s in SIGNALS if s["action"] == "SELL")
+    hold_count = sum(1 for s in SIGNALS if s["action"] == "HOLD")
+    avg_conf = sum(s["confidence"] for s in SIGNALS) / len(SIGNALS)
+
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.markdown(f"""
+        <div class="glass-card" style="text-align:center;">
+            <div class="metric-label">Buy Signals</div>
+            <div class="metric-value bull">{buy_count}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col2:
+        st.markdown(f"""
+        <div class="glass-card" style="text-align:center;">
+            <div class="metric-label">Sell Signals</div>
+            <div class="metric-value bear">{sell_count}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col3:
+        st.markdown(f"""
+        <div class="glass-card" style="text-align:center;">
+            <div class="metric-label">Hold Signals</div>
+            <div class="metric-value" style="color:#9ca3af;">{hold_count}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col4:
+        st.markdown(f"""
+        <div class="glass-card" style="text-align:center;">
+            <div class="metric-label">Avg Confidence</div>
+            <div class="metric-value cyan">{avg_conf:.0f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
 
     cols = st.columns(2)
     for i, signal in enumerate(SIGNALS):
@@ -99,15 +137,18 @@ def render_signal_card(signal: dict):
     action = signal["action"]
     badge_class = f"signal-{action.lower()}"
     change_color = "bull" if signal["expected_change"] >= 0 else "bear"
-    change_arrow = "↑" if signal["expected_change"] >= 0 else "↓"
+    change_arrow = "▲" if signal["expected_change"] >= 0 else "▼"
 
     st.markdown(f"""
-    <div class="glass-card" style="margin-bottom:1rem;">
+    <div class="glass-card" style="margin-bottom:1.25rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-            <strong style="font-family:'Sora';font-size:1.1rem;">🧠 {signal['coin']} ({signal['symbol']})</strong>
+            <div>
+                <span style="font-family:'Sora';font-size:1.1rem;font-weight:600;color:#f1f5f9;">{signal['coin']}</span>
+                <span style="color:#64748b;font-size:0.85rem;margin-left:0.5rem;">{signal['symbol']}</span>
+            </div>
             <span class="signal-badge {badge_class}">{action} · {signal['confidence']}%</span>
         </div>
-        <div class="{change_color}" style="font-size:0.85rem;margin-bottom:1rem;">
+        <div class="{change_color}" style="font-size:0.85rem;margin-bottom:0.75rem;">
             {change_arrow} {signal['expected_change']:+.1f}% expected (24h)
         </div>
     </div>
@@ -127,12 +168,12 @@ def render_signal_card(signal: dict):
             sign = "+" if feat["direction"] == "positive" else "-"
             bar_width = int(feat["impact"] * 300)
             st.markdown(f"""
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                <span style="flex:1;font-size:0.8rem;color:#9ca3af;">{feat['name']}</span>
-                <div style="width:100px;height:8px;background:#1e293b;border-radius:4px;overflow:hidden;">
-                    <div style="width:{bar_width}%;height:100%;background:{color};border-radius:4px;"></div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="flex:1;font-size:0.8rem;color:#94a3b8;font-family:'Inter';">{feat['name']}</span>
+                <div style="width:120px;height:8px;background:rgba(30,41,59,0.8);border-radius:4px;overflow:hidden;">
+                    <div style="width:{bar_width}%;height:100%;background:{color};border-radius:4px;transition:width 0.3s;"></div>
                 </div>
-                <span style="font-family:'JetBrains Mono';font-size:0.75rem;color:{color};width:40px;text-align:right;">
+                <span style="font-family:'JetBrains Mono';font-size:0.75rem;color:{color};width:45px;text-align:right;">
                     {sign}{feat['impact']*100:.0f}%
                 </span>
             </div>

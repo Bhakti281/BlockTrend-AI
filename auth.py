@@ -1,13 +1,12 @@
 """
 BlockTrend-AI — Supabase Authentication Module
-Handles signup, login, logout, and session management.
+Premium dark UI with hero landing page for unauthenticated users.
 """
 
 import streamlit as st
 from supabase import create_client, Client
 
 # Initialize Supabase client
-# Set these in .streamlit/secrets.toml or environment variables
 SUPABASE_URL = st.secrets.get("SUPABASE_URL", "https://wadwjmtrxojmbrxtdomk.supabase.co")
 SUPABASE_KEY = st.secrets.get("SUPABASE_ANON_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZHdqbXRyeG9qbWJyeHRkb21rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NTQ1OTQ1NywiZXhwIjoyMTAxMDM1NDU3fQ.vd58yUpgRwygZ-eU-mgohJS5MfeoUYfuG3kG1dkp_N0")
 
@@ -20,10 +19,7 @@ def get_supabase_client() -> Client:
 
 
 def signup(email: str, password: str, full_name: str = "") -> dict:
-    """
-    Sign up a new user with email and password.
-    The handle_new_user() trigger will auto-create their profile.
-    """
+    """Sign up a new user with email and password."""
     try:
         client = get_supabase_client()
         response = client.auth.sign_up({
@@ -85,57 +81,114 @@ def is_authenticated() -> bool:
 
 def render_auth_ui():
     """
-    Render the authentication UI (login/signup forms).
-    Returns True if user is authenticated, False otherwise.
+    Render the premium hero landing page + authentication UI.
+    Matches the CryptoVision AI design language.
     """
     if is_authenticated():
         return True
 
-    st.markdown('<h1 class="main-header">BlockTrend-AI</h1>', unsafe_allow_html=True)
-    st.markdown("Sign in to access the AI-powered crypto intelligence platform.")
+    # Hero section
+    st.markdown("""
+    <div class="hero-container">
+        <div class="hero-badge">Now with LSTM + Explainable AI</div>
+        <h1 class="hero-title">
+            The AI-first crypto<br>
+            <span class="cyan">intelligence</span><br>
+            platform
+        </h1>
+        <p class="hero-subtitle">
+            Predict market moves with Random Forest, XGBoost, and LSTM.
+            Understand every call with SHAP explanations. All wrapped in a beautiful trading terminal.
+        </p>
+        <p class="hero-note">No credit card. Powered by ML + Supabase Auth.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Features grid
+    st.markdown("""
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🧠</div>
+            <div class="feature-title">ML Ensemble Predictions</div>
+            <div class="feature-desc">Random Forest, XGBoost, and LSTM models vote on every signal with confidence scores.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <div class="feature-title">TradingView Charts</div>
+            <div class="feature-desc">Professional-grade candlestick charts with RSI, MACD, and Bollinger Bands built in.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">Real-Time Latency</div>
+            <div class="feature-desc">Monitor API response times across all data sources with live latency tracking.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔍</div>
+            <div class="feature-title">SHAP Explanations</div>
+            <div class="feature-desc">Understand why each prediction was made with feature importance visualizations.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🪙</div>
+            <div class="feature-title">Multi-Coin Analysis</div>
+            <div class="feature-desc">Compare BTC, ETH, SOL, ADA, BNB, XRP side-by-side with 7-day sparklines.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔐</div>
+            <div class="feature-title">Secure Authentication</div>
+            <div class="feature-desc">Powered by Supabase Auth with email/password sign-up and session management.</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     st.divider()
 
-    tab_login, tab_signup = st.tabs(["🔑 Login", "✨ Sign Up"])
+    # Auth forms
+    st.markdown('<h2 style="text-align:center;font-family:\'Sora\';color:#f1f5f9;margin-bottom:1rem;">Get Started</h2>', unsafe_allow_html=True)
 
-    with tab_login:
-        with st.form("login_form"):
-            email = st.text_input("Email", placeholder="you@example.com")
-            password = st.text_input("Password", type="password", placeholder="Your password")
-            submitted = st.form_submit_button("Sign In", type="primary", use_container_width=True)
+    col_spacer1, col_form, col_spacer2 = st.columns([1, 2, 1])
 
-            if submitted:
-                if not email or not password:
-                    st.error("Please fill in all fields.")
-                else:
-                    result = login(email, password)
-                    if result["success"]:
-                        st.success("✅ Logged in successfully!")
-                        st.rerun()
+    with col_form:
+        tab_login, tab_signup = st.tabs(["🔑 Sign In", "✨ Create Account"])
+
+        with tab_login:
+            with st.form("login_form"):
+                email = st.text_input("Email", placeholder="you@example.com")
+                password = st.text_input("Password", type="password", placeholder="Your password")
+                submitted = st.form_submit_button("Sign In", type="primary", use_container_width=True)
+
+                if submitted:
+                    if not email or not password:
+                        st.error("Please fill in all fields.")
                     else:
-                        st.error(f"❌ {result['error']}")
+                        result = login(email, password)
+                        if result["success"]:
+                            st.success("✅ Logged in successfully!")
+                            st.rerun()
+                        else:
+                            st.error(f"❌ {result['error']}")
 
-    with tab_signup:
-        with st.form("signup_form"):
-            full_name = st.text_input("Full Name", placeholder="John Doe")
-            email = st.text_input("Email", placeholder="you@example.com", key="signup_email")
-            password = st.text_input("Password", type="password", placeholder="Min 6 characters", key="signup_pass")
-            confirm_password = st.text_input("Confirm Password", type="password", placeholder="Repeat password")
-            submitted = st.form_submit_button("Create Account", type="primary", use_container_width=True)
+        with tab_signup:
+            with st.form("signup_form"):
+                full_name = st.text_input("Full Name", placeholder="John Doe")
+                email = st.text_input("Email", placeholder="you@example.com", key="signup_email")
+                password = st.text_input("Password", type="password", placeholder="Min 6 characters", key="signup_pass")
+                confirm_password = st.text_input("Confirm Password", type="password", placeholder="Repeat password")
+                submitted = st.form_submit_button("Create Account", type="primary", use_container_width=True)
 
-            if submitted:
-                if not email or not password:
-                    st.error("Please fill in all fields.")
-                elif password != confirm_password:
-                    st.error("Passwords do not match.")
-                elif len(password) < 6:
-                    st.error("Password must be at least 6 characters.")
-                else:
-                    result = signup(email, password, full_name)
-                    if result["success"]:
-                        st.success("✅ Account created! Check your email for verification.")
-                        st.rerun()
+                if submitted:
+                    if not email or not password:
+                        st.error("Please fill in all fields.")
+                    elif password != confirm_password:
+                        st.error("Passwords do not match.")
+                    elif len(password) < 6:
+                        st.error("Password must be at least 6 characters.")
                     else:
-                        st.error(f"❌ {result['error']}")
+                        result = signup(email, password, full_name)
+                        if result["success"]:
+                            st.success("✅ Account created! Check your email for verification.")
+                            st.rerun()
+                        else:
+                            st.error(f"❌ {result['error']}")
 
     return False
 
@@ -145,7 +198,12 @@ def render_user_sidebar():
     user = get_current_user()
     if user:
         st.sidebar.divider()
-        st.sidebar.markdown(f"👤 **{user.email}**")
-        if st.sidebar.button("🚪 Logout", use_container_width=True):
+        st.sidebar.markdown(f"""
+        <div style="padding:0.75rem;background:rgba(15,23,55,0.6);border-radius:12px;border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:0.7rem;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;">Signed in as</div>
+            <div style="font-size:0.85rem;color:#e2e8f0;font-weight:500;margin-top:0.25rem;">{user.email}</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.sidebar.button("🚪 Sign Out", use_container_width=True):
             logout()
             st.rerun()

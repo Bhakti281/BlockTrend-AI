@@ -27,24 +27,24 @@ def measure_latency(url: str) -> dict:
         }
     except requests.Timeout:
         return {"latency": None, "status": "timeout", "status_code": None}
-    except Exception as e:
+    except Exception:
         return {"latency": None, "status": "error", "status_code": None}
 
 
 def get_status_label(latency) -> tuple:
-    """Return (label, color) based on latency."""
+    """Return (label, color, icon) based on latency."""
     if latency is None:
-        return ("Timeout", "🔴")
+        return ("Timeout", "#ef4444", "🔴")
     if latency < 200:
-        return ("Excellent", "🟢")
+        return ("Excellent", "#22c55e", "🟢")
     if latency < 500:
-        return ("Good", "🟡")
-    return ("Slow", "🔴")
+        return ("Good", "#eab308", "🟡")
+    return ("Slow", "#ef4444", "🔴")
 
 
 def render():
     st.markdown('<h1 class="main-header">Latency Check</h1>', unsafe_allow_html=True)
-    st.markdown("Real-time API latency monitoring — measures response times for all data sources.")
+    st.markdown('<p class="sub-header">Real-time API latency monitoring — measures response times for all data sources.</p>', unsafe_allow_html=True)
     st.divider()
 
     # Initialize session state for history
@@ -84,19 +84,19 @@ def render():
     if "latest_results" in st.session_state:
         results = st.session_state.latest_results
 
-        st.subheader("📊 Latest Results")
+        st.markdown('<h3 style="font-family:\'Sora\';color:#f1f5f9;margin:1.5rem 0 1rem;">📊 Latest Results</h3>', unsafe_allow_html=True)
         cols = st.columns(3)
         for i, result in enumerate(results):
             with cols[i]:
-                label, indicator = get_status_label(result["latency"])
+                label, color, indicator = get_status_label(result["latency"])
                 latency_display = f"{result['latency']}ms" if result["latency"] else "N/A"
 
                 st.markdown(f"""
                 <div class="glass-card" style="text-align:center;">
                     <div class="metric-label">{result['label']}</div>
-                    <div class="metric-value cyan">{latency_display}</div>
-                    <div style="margin-top:0.5rem;font-size:0.85rem;">{indicator} {label}</div>
-                    <div style="margin-top:0.25rem;font-size:0.7rem;color:#6b7280;">
+                    <div class="metric-value cyan" style="color:{color};">{latency_display}</div>
+                    <div style="margin-top:0.5rem;font-size:0.85rem;color:#94a3b8;">{indicator} {label}</div>
+                    <div style="margin-top:0.25rem;font-size:0.7rem;color:#475569;">
                         Checked: {result['timestamp']}
                     </div>
                 </div>
@@ -106,12 +106,16 @@ def render():
         valid_latencies = [r["latency"] for r in results if r["latency"] is not None]
         if valid_latencies:
             avg = round(sum(valid_latencies) / len(valid_latencies))
-            st.info(f"⚡ **Average latency: {avg}ms** across {len(valid_latencies)} endpoints")
+            st.markdown(f"""
+            <div style="margin-top:1rem;padding:0.75rem 1.25rem;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.15);border-radius:10px;">
+                <span style="font-family:'Inter';font-size:0.9rem;color:#00d4ff;">⚡ Average latency: <strong>{avg}ms</strong> across {len(valid_latencies)} endpoints</span>
+            </div>
+            """, unsafe_allow_html=True)
 
     # History table
     if st.session_state.latency_history:
         st.divider()
-        st.subheader("📈 Latency History")
+        st.markdown('<h3 style="font-family:\'Sora\';color:#f1f5f9;margin-bottom:1rem;">📈 Latency History</h3>', unsafe_allow_html=True)
 
         df = pd.DataFrame(st.session_state.latency_history)
         st.dataframe(df, use_container_width=True, hide_index=True)
@@ -153,10 +157,10 @@ def render():
         st.markdown("""
         <div class="glass-card">
             <div class="metric-label">Performance Thresholds</div>
-            <div style="font-size:0.85rem;margin-top:0.5rem;">
-                🟢 <strong>Excellent:</strong> < 200ms<br>
+            <div style="font-size:0.85rem;margin-top:0.75rem;color:#e2e8f0;line-height:2;">
+                🟢 <strong>Excellent:</strong> &lt; 200ms<br>
                 🟡 <strong>Good:</strong> 200-500ms<br>
-                🔴 <strong>Slow:</strong> > 500ms
+                🔴 <strong>Slow:</strong> &gt; 500ms
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -165,7 +169,7 @@ def render():
         st.markdown(f"""
         <div class="glass-card">
             <div class="metric-label">Connection Info</div>
-            <div style="font-size:0.85rem;margin-top:0.5rem;">
+            <div style="font-size:0.85rem;margin-top:0.75rem;color:#e2e8f0;line-height:2;">
                 📡 <strong>Endpoints:</strong> {len(ENDPOINTS)}<br>
                 📊 <strong>History:</strong> {len(st.session_state.latency_history)} checks<br>
                 🔄 <strong>Mode:</strong> Manual trigger

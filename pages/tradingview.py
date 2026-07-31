@@ -39,8 +39,8 @@ def get_tradingview_widget(symbol: str, interval: str) -> str:
             "theme": "dark",
             "style": "1",
             "locale": "en",
-            "backgroundColor": "rgba(14, 17, 40, 1)",
-            "gridColor": "rgba(42, 46, 78, 0.3)",
+            "backgroundColor": "rgba(7, 11, 26, 1)",
+            "gridColor": "rgba(42, 46, 78, 0.2)",
             "hide_side_toolbar": false,
             "allow_symbol_change": true,
             "calendar": false,
@@ -55,7 +55,7 @@ def get_tradingview_widget(symbol: str, interval: str) -> str:
 
 def render():
     st.markdown('<h1 class="main-header">TradingView Charts</h1>', unsafe_allow_html=True)
-    st.markdown("Professional-grade charts with real-time data, technical indicators, and drawing tools.")
+    st.markdown('<p class="sub-header">Professional-grade charts with real-time data, technical indicators, and drawing tools.</p>', unsafe_allow_html=True)
     st.divider()
 
     col1, col2 = st.columns(2)
@@ -71,7 +71,7 @@ def render():
     widget_html = get_tradingview_widget(symbol, interval)
     components.html(widget_html, height=620)
 
-    st.divider()
+    st.markdown("<br>", unsafe_allow_html=True)
 
     # Info cards
     col1, col2, col3 = st.columns(3)
@@ -79,7 +79,7 @@ def render():
         st.markdown("""
         <div class="glass-card">
             <div class="metric-label">Indicators Active</div>
-            <div style="font-size:0.85rem;color:#f1f5f9;">
+            <div style="font-size:0.85rem;color:#e2e8f0;line-height:1.8;margin-top:0.5rem;">
                 • RSI (14)<br>
                 • MACD (12,26,9)<br>
                 • Bollinger Bands (20,2)
@@ -91,9 +91,9 @@ def render():
         st.markdown("""
         <div class="glass-card">
             <div class="metric-label">Chart Settings</div>
-            <div style="font-size:0.85rem;color:#f1f5f9;">
+            <div style="font-size:0.85rem;color:#e2e8f0;line-height:1.8;margin-top:0.5rem;">
                 • Style: Candlestick<br>
-                • Theme: Dark<br>
+                • Theme: Dark Terminal<br>
                 • Drawing Tools: Enabled
             </div>
         </div>
@@ -103,7 +103,7 @@ def render():
         st.markdown(f"""
         <div class="glass-card">
             <div class="metric-label">Data Source</div>
-            <div style="font-size:0.85rem;color:#f1f5f9;">
+            <div style="font-size:0.85rem;color:#e2e8f0;line-height:1.8;margin-top:0.5rem;">
                 • Provider: TradingView<br>
                 • Exchange: Binance<br>
                 • Symbol: {symbol}

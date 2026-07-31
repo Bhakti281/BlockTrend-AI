@@ -36,7 +36,7 @@ def format_usd(n: float) -> str:
 
 def render():
     st.markdown('<h1 class="main-header">Multi-Coin Analysis</h1>', unsafe_allow_html=True)
-    st.markdown("Compare BTC, ETH, SOL, ADA, BNB, XRP side-by-side with key metrics and 7-day sparklines.")
+    st.markdown('<p class="sub-header">Compare BTC, ETH, SOL, ADA, BNB, XRP side-by-side with key metrics and 7-day sparklines.</p>', unsafe_allow_html=True)
     st.divider()
 
     data = fetch_market_data()
@@ -46,7 +46,7 @@ def render():
         return
 
     # Summary table
-    st.subheader("📊 Market Overview")
+    st.markdown('<h3 style="font-family:\'Sora\';color:#f1f5f9;margin-bottom:1rem;">📊 Market Overview</h3>', unsafe_allow_html=True)
     table_data = []
     for coin in data:
         change = coin["price_change_percentage_24h"]
@@ -63,48 +63,48 @@ def render():
     df = pd.DataFrame(table_data)
     st.dataframe(df, use_container_width=True, hide_index=True)
 
-    st.divider()
+    st.markdown("<br>", unsafe_allow_html=True)
 
     # Individual coin cards
-    st.subheader("🪙 Detailed Coin Cards")
+    st.markdown('<h3 style="font-family:\'Sora\';color:#f1f5f9;margin-bottom:1rem;">🪙 Detailed Coin Cards</h3>', unsafe_allow_html=True)
     cols = st.columns(3)
     for i, coin in enumerate(data):
         with cols[i % 3]:
             change = coin["price_change_percentage_24h"]
-            color = "bull" if change >= 0 else "bear"
-            arrow = "🟢" if change >= 0 else "🔴"
+            change_class = "bull" if change >= 0 else "bear"
+            arrow = "▲" if change >= 0 else "▼"
 
             st.markdown(f"""
-            <div class="glass-card" style="margin-bottom:1rem;">
-                <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
-                    <img src="{coin['image']}" width="40" height="40" style="border-radius:50%;">
+            <div class="glass-card" style="margin-bottom:1.25rem;">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem;">
+                    <img src="{coin['image']}" width="40" height="40" style="border-radius:50%;border:2px solid rgba(255,255,255,0.06);">
                     <div>
-                        <strong style="font-family:'Sora';">{coin['name']}</strong><br>
-                        <span style="color:#6b7280;font-size:0.75rem;">{coin['symbol'].upper()}</span>
+                        <div style="font-family:'Sora';font-weight:600;color:#f1f5f9;">{coin['name']}</div>
+                        <div style="font-size:0.75rem;color:#64748b;">{coin['symbol'].upper()}</div>
                     </div>
                 </div>
-                <div style="font-family:'JetBrains Mono';font-size:1.4rem;font-weight:600;color:#f1f5f9;">
+                <div style="font-family:'JetBrains Mono';font-size:1.4rem;font-weight:700;color:#f1f5f9;">
                     {format_usd(coin['current_price'])}
                 </div>
-                <div class="{color}" style="font-size:0.85rem;margin-top:0.25rem;">
+                <div class="{change_class}" style="font-size:0.85rem;margin-top:0.25rem;">
                     {arrow} {change:+.2f}%
                 </div>
-                <div style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;">
-                    <div><span style="color:#6b7280;">Market Cap</span><br><span style="font-family:'JetBrains Mono';">{format_usd(coin['market_cap'])}</span></div>
-                    <div><span style="color:#6b7280;">Volume</span><br><span style="font-family:'JetBrains Mono';">{format_usd(coin['total_volume'])}</span></div>
-                    <div><span style="color:#6b7280;">24h High</span><br><span class="bull" style="font-family:'JetBrains Mono';">{format_usd(coin['high_24h'])}</span></div>
-                    <div><span style="color:#6b7280;">24h Low</span><br><span class="bear" style="font-family:'JetBrains Mono';">{format_usd(coin['low_24h'])}</span></div>
+                <div style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.75rem;">
+                    <div><span style="color:#64748b;">Market Cap</span><br><span style="font-family:'JetBrains Mono';color:#e2e8f0;">{format_usd(coin['market_cap'])}</span></div>
+                    <div><span style="color:#64748b;">Volume</span><br><span style="font-family:'JetBrains Mono';color:#e2e8f0;">{format_usd(coin['total_volume'])}</span></div>
+                    <div><span style="color:#64748b;">24h High</span><br><span class="bull" style="font-family:'JetBrains Mono';">{format_usd(coin['high_24h'])}</span></div>
+                    <div><span style="color:#64748b;">24h Low</span><br><span class="bear" style="font-family:'JetBrains Mono';">{format_usd(coin['low_24h'])}</span></div>
                 </div>
                 <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;font-size:0.75rem;">
-                    <span style="color:#6b7280;">ATH</span>
-                    <span style="font-family:'JetBrains Mono';">{format_usd(coin['ath'])} ({coin['ath_change_percentage']:.1f}%)</span>
+                    <span style="color:#64748b;">ATH</span>
+                    <span style="font-family:'JetBrains Mono';color:#94a3b8;">{format_usd(coin['ath'])} ({coin['ath_change_percentage']:.1f}%)</span>
                 </div>
             </div>
             """, unsafe_allow_html=True)
 
     # 7-day sparkline chart
     st.divider()
-    st.subheader("📈 7-Day Price Trends")
+    st.markdown('<h3 style="font-family:\'Sora\';color:#f1f5f9;margin-bottom:1rem;">📈 7-Day Price Trends</h3>', unsafe_allow_html=True)
 
     selected_coins = st.multiselect(
         "Select coins to compare",
