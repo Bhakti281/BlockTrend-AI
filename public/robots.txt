@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /live-prices
+Disallow: /ai-signals
+Disallow: /candlestick
+Disallow: /indicators
+Disallow: /sentiment
+Disallow: /assistant
+Disallow: /multi-coin
+Disallow: /ml-eval
+Disallow: /portfolio
+Disallow: /watchlist
+Disallow: /news
+Disallow: /settings
