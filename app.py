@@ -28,22 +28,140 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
+    /* Top navbar */
+    .top-navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 2rem;
+        background: rgba(7, 11, 26, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .top-navbar .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: 'Sora', sans-serif;
+        font-size: 1.2rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .top-navbar .brand-icon {
+        background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+        border-radius: 8px;
+        padding: 5px 7px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .top-navbar .brand-text {
+        color: #f1f5f9;
+    }
+
+    .top-navbar .brand-ai {
+        color: #00d4ff;
+    }
+
+    .top-navbar .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .top-navbar .nav-link {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #94a3b8;
+        text-decoration: none;
+        transition: color 0.2s;
+        cursor: pointer;
+    }
+
+    .top-navbar .nav-link:hover {
+        color: #e2e8f0;
+    }
+
+    .top-navbar .nav-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #f1f5f9;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        padding: 0.45rem 1.1rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .top-navbar .nav-btn:hover {
+        background: rgba(0, 212, 255, 0.08);
+        border-color: rgba(0, 212, 255, 0.3);
+        color: #00d4ff;
+    }
+
+    .top-navbar .nav-btn .arrow {
+        font-size: 1rem;
+        transition: transform 0.2s;
+    }
+
+    .top-navbar .nav-btn:hover .arrow {
+        transform: translateX(3px);
+    }
+
+    /* Add top padding to account for fixed navbar */
+    .block-container {
+        padding-top: 4.5rem !important;
+    }
+
     /* Sidebar styling */
     div[data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0a1128 0%, #060d1f 100%);
-        border-right: 1px solid rgba(0, 212, 255, 0.08);
+        border-right: 1px solid rgba(0, 212, 255, 0.06);
+        padding-top: 1rem;
+    }
+
+    div[data-testid="stSidebar"] .stRadio > div {
+        gap: 4px;
     }
 
     div[data-testid="stSidebar"] .stRadio label {
         color: #94a3b8 !important;
         font-family: 'Inter', sans-serif;
         font-weight: 500;
-        padding: 0.5rem 0;
-        transition: color 0.2s;
+        font-size: 0.9rem;
+        padding: 0.65rem 1rem;
+        border-radius: 10px;
+        transition: all 0.2s;
+        margin: 2px 0;
     }
 
     div[data-testid="stSidebar"] .stRadio label:hover {
         color: #00d4ff !important;
+        background: rgba(0, 212, 255, 0.05);
+    }
+
+    div[data-testid="stSidebar"] .stRadio label[data-checked="true"],
+    div[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label:has(input:checked) {
+        color: #00d4ff !important;
+        background: rgba(0, 212, 255, 0.08) !important;
+        border-left: 3px solid #00d4ff;
     }
 
     /* Main header - gradient text */
@@ -326,38 +444,77 @@ st.markdown("""
         line-height: 1.6;
     }
 
-    /* Nav header */
-    .nav-header {
+    /* Sidebar brand */
+    .sidebar-brand {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        padding: 1rem 0;
-        margin-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        gap: 12px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
     }
 
-    .nav-brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-family: 'Sora', sans-serif;
-        font-size: 1.3rem;
-        font-weight: 700;
-    }
-
-    .nav-brand .icon {
+    .sidebar-brand .brand-icon {
         background: linear-gradient(135deg, #0ea5e9, #06b6d4);
         border-radius: 10px;
-        padding: 6px 8px;
-        font-size: 1rem;
+        padding: 8px 10px;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
     }
 
-    .nav-brand .text {
+    .sidebar-brand .brand-name {
+        font-family: 'Sora', sans-serif;
+        font-size: 1.15rem;
+        font-weight: 700;
         color: #f1f5f9;
     }
 
-    .nav-brand .ai {
+    .sidebar-brand .brand-name .ai {
         color: #00d4ff;
+    }
+
+    .sidebar-brand .brand-tagline {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.7rem;
+        color: #475569;
+        margin-top: 2px;
+    }
+
+    /* Sidebar section label */
+    .sidebar-section {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: #475569;
+        padding: 0.5rem 1rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Sidebar status indicator */
+    .sidebar-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.6rem 1rem;
+        margin: 0.5rem 0.75rem;
+        background: rgba(34, 197, 94, 0.06);
+        border: 1px solid rgba(34, 197, 94, 0.15);
+        border-radius: 8px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.75rem;
+        color: #22c55e;
+    }
+
+    .sidebar-status .dot {
+        width: 6px;
+        height: 6px;
+        background: #22c55e;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
     }
 
     /* Divider override */
@@ -405,26 +562,65 @@ from auth import render_auth_ui, is_authenticated, render_user_sidebar
 
 # Check if user is authenticated
 if not is_authenticated():
+    # Top navbar for unauthenticated users
+    st.markdown("""
+    <div class="top-navbar">
+        <div class="brand">
+            <span class="brand-icon">⚡</span>
+            <span><span class="brand-text">BlockTrend-</span><span class="brand-ai">AI</span></span>
+        </div>
+        <div class="nav-actions">
+            <span class="nav-link">Sign in</span>
+            <span class="nav-btn">Launch app <span class="arrow">→</span></span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     render_auth_ui()
 else:
-    # Sidebar navigation
-    st.sidebar.markdown("""
-    <div style="padding: 0.5rem 0 1.5rem;">
-        <div class="nav-brand">
-            <span class="icon">⚡</span>
-            <span><span class="text">BlockTrend-</span><span class="ai">AI</span></span>
+    # Top navbar for authenticated users
+    from auth import get_current_user
+    user = get_current_user()
+    user_email = user.email if user else ""
+    st.markdown(f"""
+    <div class="top-navbar">
+        <div class="brand">
+            <span class="brand-icon">⚡</span>
+            <span><span class="brand-text">BlockTrend-</span><span class="brand-ai">AI</span></span>
         </div>
-        <div style="font-size:0.75rem;color:#475569;margin-top:0.25rem;padding-left:2.8rem;">AI-First Crypto Intelligence</div>
+        <div class="nav-actions">
+            <span class="nav-link" style="color:#64748b;font-size:0.8rem;">👤 {user_email}</span>
+            <span class="nav-btn" style="background:rgba(0,212,255,0.08);border-color:rgba(0,212,255,0.2);color:#00d4ff;">Live Terminal <span class="arrow">→</span></span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.sidebar.divider()
+    # Sidebar navigation
+    st.sidebar.markdown("""
+    <div class="sidebar-brand">
+        <span class="brand-icon">⚡</span>
+        <div>
+            <div class="brand-name">BlockTrend-<span class="ai">AI</span></div>
+            <div class="brand-tagline">AI-First Crypto Intelligence</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.sidebar.markdown("""
+    <div class="sidebar-status">
+        <span class="dot"></span>
+        All systems operational
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.sidebar.markdown('<div class="sidebar-section">Navigation</div>', unsafe_allow_html=True)
 
     page = st.sidebar.radio(
         "Navigation",
         ["🏠 Dashboard", "📈 TradingView Charts", "🤖 AI Signals", "🪙 Multi-Coin", "⚡ Latency Check"],
         label_visibility="collapsed",
     )
+
+    st.sidebar.markdown('<div class="sidebar-section">Account</div>', unsafe_allow_html=True)
 
     # Show user info and logout in sidebar
     render_user_sidebar()

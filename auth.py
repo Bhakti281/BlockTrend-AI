@@ -197,11 +197,17 @@ def render_user_sidebar():
     """Render user info and logout button in sidebar."""
     user = get_current_user()
     if user:
-        st.sidebar.divider()
         st.sidebar.markdown(f"""
-        <div style="padding:0.75rem;background:rgba(15,23,55,0.6);border-radius:12px;border:1px solid rgba(255,255,255,0.06);">
-            <div style="font-size:0.7rem;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;">Signed in as</div>
-            <div style="font-size:0.85rem;color:#e2e8f0;font-weight:500;margin-top:0.25rem;">{user.email}</div>
+        <div style="padding:0.75rem 1rem;margin:0.25rem 0.75rem;background:rgba(15,23,55,0.6);border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:32px;height:32px;background:linear-gradient(135deg,#0ea5e9,#7c3aed);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.8rem;color:#fff;">
+                    {user.email[0].upper()}
+                </div>
+                <div>
+                    <div style="font-size:0.8rem;color:#e2e8f0;font-weight:500;font-family:'Inter',sans-serif;">{user.email}</div>
+                    <div style="font-size:0.65rem;color:#475569;font-family:'Inter',sans-serif;">Free Plan</div>
+                </div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
         if st.sidebar.button("🚪 Sign Out", use_container_width=True):
