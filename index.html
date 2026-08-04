@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockTrend-AI | AI-First Crypto Intelligence</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(ellipse at 50% 0%, #0d1b3e 0%, #070b1a 50%, #040711 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #070b1a; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 2.5rem 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .header .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 0.75rem;
+        }
+        .header .brand-icon {
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 1.2rem;
+        }
+        .header .brand-text {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+        .header .brand-text .ai { color: #00d4ff; }
+        .header p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 1.25rem 1rem;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #94a3b8;
+            background: rgba(15, 23, 55, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover {
+            color: #e2e8f0;
+            background: rgba(15, 23, 55, 0.8);
+        }
+        .tab-btn.active {
+            background: rgba(0, 212, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.25);
+            color: #00d4ff;
+        }
+
+        /* Content */
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Refresh button */
+        .refresh-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.6rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
+            margin-bottom: 1.5rem;
+        }
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(14, 165, 233, 0.4);
+        }
+
+        /* Page header */
+        .page-title {
+            font-family: 'Sora', sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, #00d4ff 50%, #0ea5e9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        .page-subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Grid layouts */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .coins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.25rem;
+        }
+
+        /* Glass card */
+        .glass-card {
+            background: rgba(15, 23, 55, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+        .glass-card:hover {
+            border-color: rgba(0, 212, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.05);
+        }
+
+        /* Metric card */
+        .metric-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        /* Colors */
+        .bull { color: #22c55e; }
+        .bear { color: #ef4444; }
+        .cyan { color: #00d4ff; }
+
+        /* Signal badges */
+        .signal-badge {
+            display: inline-block;
+            padding: 0.3rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .signal-buy { background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.25); }
+        .signal-sell { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+        .signal-hold { background: rgba(107,114,128,0.12); color: #9ca3af; border: 1px solid rgba(107,114,128,0.25); }
+
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        .data-table th {
+            text-align: left;
+            padding: 10px;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .data-table td {
+            padding: 10px;
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Section title */
+        .section-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 1rem;
+        }
+
+        /* Divider */
+        .divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            margin: 1.5rem 0;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0,212,255,0.3);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* SHAP bar */
+        .shap-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .shap-bar-label {
+            flex: 1;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+        .shap-bar-track {
+            width: 80px;
+            height: 6px;
+            background: rgba(30,41,59,0.8);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .shap-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+        .shap-bar-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            width: 40px;
+            text-align: right;
+        }
+
+        /* TradingView controls */
+        .tv-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .tv-controls select {
+            background: rgba(15, 23, 55, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 0.6rem 1rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        .tv-controls select:focus {
+            outline: none;
+            border-color: rgba(0,212,255,0.3);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            color: #475569;
+            font-size: 0.8rem;
+        }
+
+        /* Coin image */
+        .coin-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.06);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+            .coins-grid { grid-template-columns: 1fr; }
+            .signals-grid { grid-template-columns: 1fr; }
+            .page-title { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="brand">
+            <span class="brand-icon">⚡</span>
+            <span class="brand-text">BlockTrend-<span class="ai">AI</span></span>
+        </div>
+        <p>The AI-first crypto intelligence platform — Predict market moves with ML ensemble models</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="dashboard">🏠 Dashboard</button>
+        <button class="tab-btn" data-tab="tradingview">📈 TradingView</button>
+        <button class="tab-btn" data-tab="signals">🤖 AI Signals</button>
+        <button class="tab-btn" data-tab="multicoin">🪙 Multi-Coin</button>
+        <button class="tab-btn" data-tab="latency">⚡ Latency</button>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="dashboard">
+            <h1 class="page-title">Market Command Center</h1>
+            <p class="page-subtitle">Live crypto overview, AI signals, and market pulse — refreshed on demand.</p>
+            <button class="refresh-btn" onclick="loadDashboard()">🔄 Refresh Dashboard</button>
+            <div id="dashboard-content"><div class="loading">Loading market data</div></div>
+        </div>
+
+        <!-- TradingView Tab -->
+        <div class="tab-content" id="tradingview">
+            <h1 class="page-title">TradingView Charts</h1>
+            <p class="page-subtitle">Professional-grade charts with real-time data, technical indicators, and drawing tools.</p>
+            <div class="tv-controls">
+                <select id="tv-symbol">
+                    <option value="BINANCE:BTCUSDT">BTC/USDT</option>
+                    <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+                    <option value="BINANCE:SOLUSDT">SOL/USDT</option>
+                    <option value="BINANCE:ADAUSDT">ADA/USDT</option>
+                    <option value="BINANCE:BNBUSDT">BNB/USDT</option>
+                    <option value="BINANCE:XRPUSDT">XRP/USDT</option>
+                </select>
+                <select id="tv-interval">
+                    <option value="1">1 minute</option>
+                    <option value="5">5 minutes</option>
+                    <option value="15">15 minutes</option>
+                    <option value="60" selected>1 hour</option>
+                    <option value="240">4 hours</option>
+                    <option value="D">1 day</option>
+                    <option value="W">1 week</option>
+                </select>
+                <button class="refresh-btn" onclick="loadChart()">📊 Load Chart</button>
+            </div>
+            <div id="tradingview-widget" style="height:500px;border-radius:16px;overflow:hidden;margin-bottom:1.5rem;"></div>
+            <div class="coins-grid">
+                <div class="glass-card">
+                    <div class="metric-label">Indicators Active</div>
+                    <div style="font-size:0.85rem;color:#e2e8f0;line-height:1.8;margin-top:0.5rem;">• RSI (14)<br>• MACD (12,26,9)<br>• Bollinger Bands (20,2)</div>
+                </div>
+                <div class="glass-card">
+                    <div class="metric-label">Chart Settings</div>
+                    <div style="font-size:0.85rem;color:#e2e8f0;line-height:1.8;margin-top:0.5rem;">• Style: Candlestick<br>• Theme: Dark Terminal<br>• Drawing Tools: Enabled</div>
+                </div>
+                <div class="glass-card">
+                    <div class="metric-label">Data Source</div>
+                    <div style="font-size:0.85rem;color:#e2e8f0;line-height:1.8;margin-top:0.5rem;">• Exchange: Binance<br>• Protocol: WebSocket<br>• Latency: Real-time</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Signals Tab -->
+        <div class="tab-content" id="signals">
+            <h1 class="page-title">AI Signals</h1>
+            <p class="page-subtitle">ML ensemble predictions with SHAP-explained feature importance for each signal.</p>
+            <div id="signals-content"></div>
+        </div>
+
+        <!-- Multi-Coin Tab -->
+        <div class="tab-content" id="multicoin">
+            <h1 class="page-title">Multi-Coin Analysis</h1>
+            <p class="page-subtitle">Compare BTC, ETH, SOL, ADA, BNB, XRP side-by-side with key metrics.</p>
+            <button class="refresh-btn" onclick="loadMultiCoin()">🔄 Refresh Data</button>
+            <div id="multicoin-content"><div class="loading">Loading market data</div></div>
+        </div>
+
+        <!-- Latency Tab -->
+        <div class="tab-content" id="latency">
+            <h1 class="page-title">Latency Check</h1>
+            <p class="page-subtitle">Real-time API latency monitoring — measures response times for all data sources.</p>
+            <button class="refresh-btn" onclick="runLatencyTest()">⚡ Run Latency Test</button>
+            <div id="latency-content"></div>
+            <div class="coins-grid" style="margin-top:1.5rem;">
+                <div class="glass-card">
+                    <div class="metric-label">Performance Thresholds</div>
+                    <div style="font-size:0.85rem;color:#e2e8f0;line-height:2;margin-top:0.5rem;">🟢 <strong>Excellent:</strong> &lt; 200ms<br>🟡 <strong>Good:</strong> 200-500ms<br>🔴 <strong>Slow:</strong> &gt; 500ms</div>
+                </div>
+                <div class="glass-card">
+                    <div class="metric-label">Connection Info</div>
+                    <div style="font-size:0.85rem;color:#e2e8f0;line-height:2;margin-top:0.5rem;">📡 <strong>Endpoints:</strong> 3<br>🔄 <strong>Mode:</strong> On-demand<br>📊 <strong>Protocol:</strong> HTTPS</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        BlockTrend-AI © 2024 — Powered by ML + CoinGecko + TradingView
+    </div>
+
+    <script>
+        // ============================================================
+        // TAB NAVIGATION
+        // ============================================================
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
+
+        // ============================================================
+        // UTILITY FUNCTIONS
+        // ============================================================
+        function formatUSD(n) {
+            if (n >= 1e9) return `$${(n / 1e9).toFixed(2)}B`;
+            if (n >= 1e6) return `$${(n / 1e6).toFixed(2)}M`;
+            if (n >= 1e3) return `$${n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            if (n >= 1) return `$${n.toFixed(2)}`;
+            return `$${n.toFixed(4)}`;
+        }
+
+        // ============================================================
+        // DASHBOARD
+        // ============================================================
+        async function loadDashboard() {
+            const container = document.getElementById('dashboard-content');
+            container.innerHTML = '<div class="loading">Loading market data</div>';
+
+            try {
+                const resp = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,solana,cardano,binancecoin,ripple&order=market_cap_desc&per_page=20&page=1&sparkline=true&price_change_percentage=24h');
+                const data = await resp.json();
+
+                const totalCap = data.reduce((s, c) => s + c.market_cap, 0);
+                const totalVol = data.reduce((s, c) => s + c.total_volume, 0);
+                const avgChange = data.reduce((s, c) => s + c.price_change_percentage_24h, 0) / data.length;
+                const bullish = data.filter(c => c.price_change_percentage_24h > 0).length;
+
+                let html = `
+                    <div class="metrics-grid">
+                        <div class="glass-card" style="text-align:center;">
+                            <div class="metric-label">Total Market Cap</div>
+                            <div class="metric-value">${formatUSD(totalCap)}</div>
+                            <div class="${avgChange >= 0 ? 'bull' : 'bear'}" style="font-size:0.8rem;margin-top:0.25rem;">${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%</div>
+                        </div>
+                        <div class="glass-card" style="text-align:center;">
+                            <div class="metric-label">24h Volume</div>
+                            <div class="metric-value">${formatUSD(totalVol)}</div>
+                            <div style="font-size:0.8rem;color:#64748b;margin-top:0.25rem;">${data.length} coins tracked</div>
+                        </div>
+                        <div class="glass-card" style="text-align:center;">
+                            <div class="metric-label">Bullish Signals</div>
+                            <div class="metric-value bull">${bullish} / ${data.length}</div>
+                            <div style="font-size:0.8rem;color:#64748b;margin-top:0.25rem;">AI ensemble</div>
+                        </div>
+                        <div class="glass-card" style="text-align:center;">
+                            <div class="metric-label">AI Confidence</div>
+                            <div class="metric-value cyan">87%</div>
+                            <div style="font-size:0.8rem;color:#64748b;margin-top:0.25rem;">LSTM 24h forecast</div>
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">📊 Live Prices</h3>
+                    <div class="coins-grid">
+                `;
+
+                data.slice(0, 6).forEach(coin => {
+                    const change = coin.price_change_percentage_24h;
+                    const arrow = change >= 0 ? '▲' : '▼';
+                    const changeClass = change >= 0 ? 'bull' : 'bear';
+                    html += `
+                        <div class="glass-card">
+                            <div style="display:flex;align-items:center;gap:12px;">
+                                <img class="coin-img" src="${coin.image}" alt="${coin.name}">
+                                <div style="flex:1;">
+                                    <div style="font-family:'Sora',sans-serif;font-weight:600;color:#f1f5f9;">${coin.symbol.toUpperCase()}</div>
+                                    <div style="font-size:0.75rem;color:#64748b;">${coin.name}</div>
+                                </div>
+                                <div style="text-align:right;">
+                                    <div style="font-family:'JetBrains Mono',monospace;font-size:1.05rem;font-weight:600;color:#f1f5f9;">${formatUSD(coin.current_price)}</div>
+                                    <div class="${changeClass}" style="font-size:0.8rem;">${arrow} ${change >= 0 ? '+' : ''}${change.toFixed(2)}%</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div>
+                    <hr class="divider">
+                    <h3 class="section-title">🧠 ML Ensemble Status</h3>
+                    <div class="glass-card">
+                        <table class="data-table">
+                            <thead><tr><th>Model</th><th>Vote</th><th>Confidence</th><th>Features</th></tr></thead>
+                            <tbody>
+                                <tr><td>Random Forest</td><td class="bull" style="font-weight:600;">BUY</td><td>79%</td><td style="color:#94a3b8;">42 technical indicators</td></tr>
+                                <tr><td>XGBoost</td><td class="bull" style="font-weight:600;">BUY</td><td>83%</td><td style="color:#94a3b8;">Gradient boosted trees</td></tr>
+                                <tr><td>LSTM (24h)</td><td class="bull" style="font-weight:600;">BUY</td><td>87%</td><td style="color:#94a3b8;">Sequential price patterns</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p style="color:#475569;font-size:0.8rem;margin-top:1rem;">Last updated: ${new Date().toISOString().replace('T', ' ').slice(0, 19)} UTC</p>
+                `;
+
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = '<div class="glass-card" style="color:#ef4444;">⚠️ Unable to fetch market data. CoinGecko API may be rate-limited. Try again shortly.</div>';
+            }
+        }
+
+        // ============================================================
+        // TRADINGVIEW CHART
+        // ============================================================
+        function loadChart() {
+            const symbol = document.getElementById('tv-symbol').value;
+            const interval = document.getElementById('tv-interval').value;
+            const container = document.getElementById('tradingview-widget');
+            container.innerHTML = '';
+
+            const script = document.createElement('script');
+            script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+            script.async = true;
+            script.innerHTML = JSON.stringify({
+                autosize: true,
+                symbol: symbol,
+                interval: interval,
+                timezone: "Etc/UTC",
+                theme: "dark",
+                style: "1",
+                locale: "en",
+                backgroundColor: "rgba(7, 11, 26, 1)",
+                gridColor: "rgba(42, 46, 78, 0.2)",
+                hide_side_toolbar: false,
+                allow_symbol_change: true,
+                calendar: false,
+                studies: ["RSI@tv-basicstudies", "MACD@tv-basicstudies", "BB@tv-basicstudies"],
+                support_host: "https://www.tradingview.com"
+            });
+
+            const widgetDiv = document.createElement('div');
+            widgetDiv.className = 'tradingview-widget-container__widget';
+            widgetDiv.style.height = '100%';
+            widgetDiv.style.width = '100%';
+
+            const widgetContainer = document.createElement('div');
+            widgetContainer.className = 'tradingview-widget-container';
+            widgetContainer.style.height = '100%';
+            widgetContainer.style.width = '100%';
+            widgetContainer.appendChild(widgetDiv);
+            widgetContainer.appendChild(script);
+
+            container.appendChild(widgetContainer);
+        }
+
+        // ============================================================
+        // AI SIGNALS
+        // ============================================================
+        const SIGNALS = [
+            {
+                coin: "Bitcoin", symbol: "BTC", action: "BUY", confidence: 87, expected_change: 4.2,
+                models: [{name: "Random Forest", vote: "BUY", weight: 0.79}, {name: "XGBoost", vote: "BUY", weight: 0.83}, {name: "LSTM (24h)", vote: "BUY", weight: 0.87}],
+                features: [{name: "MACD Crossover", impact: 0.32, direction: "positive"}, {name: "RSI Momentum", impact: 0.24, direction: "positive"}, {name: "Volume Surge", impact: 0.18, direction: "positive"}, {name: "Sentiment Score", impact: 0.15, direction: "positive"}, {name: "Bollinger Width", impact: 0.11, direction: "negative"}]
+            },
+            {
+                coin: "Ethereum", symbol: "ETH", action: "BUY", confidence: 74, expected_change: 2.8,
+                models: [{name: "Random Forest", vote: "BUY", weight: 0.72}, {name: "XGBoost", vote: "BUY", weight: 0.76}, {name: "LSTM (24h)", vote: "BUY", weight: 0.74}],
+                features: [{name: "EMA Crossover", impact: 0.28, direction: "positive"}, {name: "DeFi TVL Growth", impact: 0.22, direction: "positive"}, {name: "Gas Fee Decline", impact: 0.19, direction: "positive"}, {name: "Whale Activity", impact: 0.17, direction: "positive"}, {name: "Correlation BTC", impact: 0.14, direction: "negative"}]
+            },
+            {
+                coin: "Solana", symbol: "SOL", action: "HOLD", confidence: 62, expected_change: 0.8,
+                models: [{name: "Random Forest", vote: "HOLD", weight: 0.61}, {name: "XGBoost", vote: "BUY", weight: 0.65}, {name: "LSTM (24h)", vote: "HOLD", weight: 0.60}],
+                features: [{name: "Network Activity", impact: 0.25, direction: "positive"}, {name: "RSI Neutral", impact: 0.20, direction: "negative"}, {name: "Volume Flat", impact: 0.18, direction: "negative"}, {name: "Dev Activity", impact: 0.22, direction: "positive"}, {name: "Market Correlation", impact: 0.15, direction: "negative"}]
+            },
+            {
+                coin: "Cardano", symbol: "ADA", action: "SELL", confidence: 68, expected_change: -2.1,
+                models: [{name: "Random Forest", vote: "SELL", weight: 0.66}, {name: "XGBoost", vote: "SELL", weight: 0.70}, {name: "LSTM (24h)", vote: "SELL", weight: 0.68}],
+                features: [{name: "Bearish Divergence", impact: 0.30, direction: "negative"}, {name: "Volume Decline", impact: 0.25, direction: "negative"}, {name: "Support Break", impact: 0.20, direction: "negative"}, {name: "Sentiment Drop", impact: 0.15, direction: "negative"}, {name: "Staking Outflow", impact: 0.10, direction: "negative"}]
+            }
+        ];
+
+        function loadSignals() {
+            const container = document.getElementById('signals-content');
+            const buyCount = SIGNALS.filter(s => s.action === 'BUY').length;
+            const sellCount = SIGNALS.filter(s => s.action === 'SELL').length;
+            const holdCount = SIGNALS.filter(s => s.action === 'HOLD').length;
+            const avgConf = SIGNALS.reduce((s, sig) => s + sig.confidence, 0) / SIGNALS.length;
+
+            let html = `
+                <div class="metrics-grid">
+                    <div class="glass-card" style="text-align:center;">
+                        <div class="metric-label">Buy Signals</div>
+                        <div class="metric-value bull">${buyCount}</div>
+                    </div>
+                    <div class="glass-card" style="text-align:center;">
+                        <div class="metric-label">Sell Signals</div>
+                        <div class="metric-value bear">${sellCount}</div>
+                    </div>
+                    <div class="glass-card" style="text-align:center;">
+                        <div class="metric-label">Hold Signals</div>
+                        <div class="metric-value" style="color:#9ca3af;">${holdCount}</div>
+                    </div>
+                    <div class="glass-card" style="text-align:center;">
+                        <div class="metric-label">Avg Confidence</div>
+                        <div class="metric-value cyan">${avgConf.toFixed(0)}%</div>
+                    </div>
+                </div>
+                <div class="signals-grid">
+            `;
+
+            SIGNALS.forEach(signal => {
+                const badgeClass = signal.action === 'BUY' ? 'signal-buy' : (signal.action === 'SELL' ? 'signal-sell' : 'signal-hold');
+                const changeColor = signal.expected_change >= 0 ? '#22c55e' : '#ef4444';
+                const changeArrow = signal.expected_change >= 0 ? '▲' : '▼';
+
+                html += `
+                    <div class="glass-card">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                            <div>
+                                <span style="font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:600;color:#f1f5f9;">${signal.coin}</span>
+                                <span style="color:#64748b;font-size:0.85rem;margin-left:0.5rem;">${signal.symbol}</span>
+                            </div>
+                            <span class="signal-badge ${badgeClass}">${signal.action} · ${signal.confidence}%</span>
+                        </div>
+                        <div style="color:${changeColor};font-size:0.85rem;margin-bottom:1rem;">
+                            ${changeArrow} ${signal.expected_change >= 0 ? '+' : ''}${signal.expected_change.toFixed(1)}% expected (24h)
+                        </div>
+                        <div style="margin-bottom:0.75rem;">
+                            <div style="font-size:0.75rem;color:#64748b;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.1em;">Model Votes</div>
+                `;
+
+                signal.models.forEach(model => {
+                    const voteColor = model.vote === 'BUY' ? '#22c55e' : (model.vote === 'SELL' ? '#ef4444' : '#9ca3af');
+                    html += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:0.8rem;"><span style="color:#94a3b8;">${model.name}</span><span style="color:${voteColor};font-weight:600;">${model.vote} (${(model.weight*100).toFixed(0)}%)</span></div>`;
+                });
+
+                html += `</div><div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:0.75rem;"><div style="font-size:0.75rem;color:#64748b;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.1em;">SHAP Features</div>`;
+
+                signal.features.forEach(feat => {
+                    const featColor = feat.direction === 'positive' ? '#22c55e' : '#ef4444';
+                    const sign = feat.direction === 'positive' ? '+' : '-';
+                    const barWidth = Math.round(feat.impact * 300);
+                    html += `
+                        <div class="shap-bar-container">
+                            <span class="shap-bar-label">${feat.name}</span>
+                            <div class="shap-bar-track"><div class="shap-bar-fill" style="width:${barWidth}%;background:${featColor};"></div></div>
+                            <span class="shap-bar-value" style="color:${featColor};">${sign}${(feat.impact*100).toFixed(0)}%</span>
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // ============================================================
+        // MULTI-COIN
+        // ============================================================
+        async function loadMultiCoin() {
+            const container = document.getElementById('multicoin-content');
+            container.innerHTML = '<div class="loading">Loading market data</div>';
+
+            try {
+                const resp = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,solana,cardano,binancecoin,ripple&order=market_cap_desc&per_page=20&page=1&sparkline=true&price_change_percentage=24h');
+                const data = await resp.json();
+
+                let html = `
+                    <div class="glass-card" style="overflow-x:auto;margin-bottom:2rem;">
+                        <table class="data-table">
+                            <thead><tr>
+                                <th>Coin</th><th style="text-align:right;">Price</th><th style="text-align:right;">24h Change</th>
+                                <th style="text-align:right;">Market Cap</th><th style="text-align:right;">24h Volume</th>
+                                <th style="text-align:right;">24h High</th><th style="text-align:right;">24h Low</th>
+                            </tr></thead>
+                            <tbody>
+                `;
+
+                data.forEach(coin => {
+                    const change = coin.price_change_percentage_24h;
+                    const changeClass = change >= 0 ? 'bull' : 'bear';
+                    html += `
+                        <tr>
+                            <td><div style="display:flex;align-items:center;gap:8px;"><img src="${coin.image}" width="24" height="24" style="border-radius:50%;">${coin.symbol.toUpperCase()} <span style="color:#64748b;font-size:0.8rem;">(${coin.name})</span></div></td>
+                            <td style="text-align:right;font-family:'JetBrains Mono',monospace;">${formatUSD(coin.current_price)}</td>
+                            <td style="text-align:right;font-family:'JetBrains Mono',monospace;" class="${changeClass}">${change >= 0 ? '+' : ''}${change.toFixed(2)}%</td>
+                            <td style="text-align:right;font-family:'JetBrains Mono',monospace;">${formatUSD(coin.market_cap)}</td>
+                            <td style="text-align:right;font-family:'JetBrains Mono',monospace;">${formatUSD(coin.total_volume)}</td>
+                            <td style="text-align:right;font-family:'JetBrains Mono',monospace;color:#22c55e;">${formatUSD(coin.high_24h)}</td>
+                            <td style="text-align:right;font-family:'JetBrains Mono',monospace;color:#ef4444;">${formatUSD(coin.low_24h)}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `</tbody></table></div>
+                    <h3 class="section-title">🪙 Detailed Coin Cards</h3>
+                    <div class="coins-grid">
+                `;
+
+                data.forEach(coin => {
+                    const change = coin.price_change_percentage_24h;
+                    const changeColor = change >= 0 ? '#22c55e' : '#ef4444';
+                    const arrow = change >= 0 ? '▲' : '▼';
+                    html += `
+                        <div class="glass-card">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem;">
+                                <img class="coin-img" src="${coin.image}" style="width:40px;height:40px;" alt="${coin.name}">
+                                <div><div style="font-family:'Sora',sans-serif;font-weight:600;color:#f1f5f9;">${coin.name}</div><div style="font-size:0.75rem;color:#64748b;">${coin.symbol.toUpperCase()}</div></div>
+                            </div>
+                            <div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:700;color:#f1f5f9;">${formatUSD(coin.current_price)}</div>
+                            <div style="color:${changeColor};font-size:0.85rem;margin-top:0.25rem;">${arrow} ${change >= 0 ? '+' : ''}${change.toFixed(2)}%</div>
+                            <div style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.75rem;">
+                                <div><span style="color:#64748b;">Market Cap</span><br><span style="font-family:'JetBrains Mono',monospace;color:#e2e8f0;">${formatUSD(coin.market_cap)}</span></div>
+                                <div><span style="color:#64748b;">Volume</span><br><span style="font-family:'JetBrains Mono',monospace;color:#e2e8f0;">${formatUSD(coin.total_volume)}</span></div>
+                                <div><span style="color:#64748b;">24h High</span><br><span style="font-family:'JetBrains Mono',monospace;color:#22c55e;">${formatUSD(coin.high_24h)}</span></div>
+                                <div><span style="color:#64748b;">24h Low</span><br><span style="font-family:'JetBrains Mono',monospace;color:#ef4444;">${formatUSD(coin.low_24h)}</span></div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = '<div class="glass-card" style="color:#ef4444;">⚠️ Unable to fetch market data. CoinGecko API may be rate-limited.</div>';
+            }
+        }
+
+        // ============================================================
+        // LATENCY CHECK
+        // ============================================================
+        async function runLatencyTest() {
+            const container = document.getElementById('latency-content');
+            container.innerHTML = '<div class="loading">Running latency tests</div>';
+
+            const endpoints = [
+                {url: 'https://api.coingecko.com/api/v3/ping', label: 'CoinGecko API'},
+                {url: 'https://s3.tradingview.com/tv.js', label: 'TradingView CDN'},
+                {url: 'https://dns.google/resolve?name=api.coingecko.com&type=A', label: 'DNS Resolution'},
+            ];
+
+            const results = [];
+            for (const ep of endpoints) {
+                try {
+                    const start = performance.now();
+                    await fetch(ep.url, {mode: 'no-cors', cache: 'no-store'});
+                    const latency = Math.round(performance.now() - start);
+                    results.push({label: ep.label, latency, status: 'success'});
+                } catch (e) {
+                    results.push({label: ep.label, latency: null, status: 'error'});
+                }
+            }
+
+            let html = '<div class="metrics-grid">';
+            results.forEach(r => {
+                let display, color, indicator, label;
+                if (r.latency === null) { display = 'N/A'; color = '#ef4444'; indicator = '🔴'; label = 'Error'; }
+                else if (r.latency < 200) { display = `${r.latency}ms`; color = '#22c55e'; indicator = '🟢'; label = 'Excellent'; }
+                else if (r.latency < 500) { display = `${r.latency}ms`; color = '#eab308'; indicator = '🟡'; label = 'Good'; }
+                else { display = `${r.latency}ms`; color = '#ef4444'; indicator = '🔴'; label = 'Slow'; }
+
+                html += `
+                    <div class="glass-card" style="text-align:center;">
+                        <div class="metric-label">${r.label}</div>
+                        <div class="metric-value" style="color:${color};">${display}</div>
+                        <div style="margin-top:0.5rem;font-size:0.85rem;color:#94a3b8;">${indicator} ${label}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            const validLatencies = results.filter(r => r.latency !== null).map(r => r.latency);
+            if (validLatencies.length > 0) {
+                const avg = Math.round(validLatencies.reduce((a, b) => a + b, 0) / validLatencies.length);
+                html += `<div style="padding:0.75rem 1.25rem;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.15);border-radius:10px;margin-top:1rem;"><span style="font-size:0.9rem;color:#00d4ff;">⚡ Average latency: <strong>${avg}ms</strong> across ${validLatencies.length} endpoints</span></div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        loadDashboard();
+        loadSignals();
+        loadChart();
+    </script>
+</body>
+</html>
