@@ -8,318 +8,804 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-primary: #070b1a;
+            --bg-secondary: #0f1737;
+            --bg-card: rgba(15, 23, 55, 0.7);
+            --bg-card-hover: rgba(15, 23, 55, 0.9);
+            --border: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(0, 212, 255, 0.3);
+            --text-primary: #f1f5f9;
+            --text-secondary: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --accent: #00d4ff;
+            --accent-glow: rgba(0, 212, 255, 0.15);
+            --green: #22c55e;
+            --green-bg: rgba(34, 197, 94, 0.12);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, 0.12);
+            --yellow: #eab308;
+            --purple: #a855f7;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: 'Inter', sans-serif;
-            background: radial-gradient(ellipse at 50% 0%, #0d1b3e 0%, #070b1a 50%, #040711 100%);
-            color: #e2e8f0;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
             min-height: 100vh;
+            overflow-x: hidden;
         }
-        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding: 2rem 0;
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 0%, rgba(0, 212, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(168, 85, 247, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(13, 27, 62, 0.5) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
         }
-        .header h1 {
-            font-family: 'Sora', sans-serif;
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 0%, #00d4ff 50%, #0ea5e9 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
-        }
-        .header p { color: #64748b; font-size: 1rem; }
-        .tabs {
+
+        .app { position: relative; z-index: 1; display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: rgba(7, 11, 26, 0.95);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem 1rem;
             display: flex;
-            gap: 0.5rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            justify-content: center;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            transition: transform 0.3s ease;
         }
-        .tab-btn {
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            padding: 0.6rem 1.2rem;
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
             border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.06);
-            background: rgba(15,23,55,0.5);
-            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .sidebar-logo-text {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .sidebar-logo-text span { color: var(--accent); }
+
+        .nav-section {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-dim);
+            padding: 0 0.75rem;
+            margin-bottom: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.7rem 0.75rem;
+            border-radius: 10px;
+            color: var(--text-muted);
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 0.85rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 2px;
         }
-        .tab-btn:hover { background: rgba(15,23,55,0.8); color: #e2e8f0; }
-        .tab-btn.active {
-            background: rgba(0,212,255,0.1);
-            border-color: rgba(0,212,255,0.3);
-            color: #00d4ff;
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-secondary);
         }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
-        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
-        .card {
-            background: rgba(15,23,55,0.7);
-            border: 1px solid rgba(255,255,255,0.06);
+
+        .nav-item.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 1rem 0.75rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .sidebar-footer p {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-align: center;
+        }
+
+        /* Main content */
+        .main {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem 2.5rem;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #00d4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.4rem;
+        }
+
+        .page-subtitle { color: var(--text-dim); font-size: 0.9rem; }
+
+        /* Cards & Grid */
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-bottom: 1.5rem; }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
             border-radius: 16px;
             padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
-        .card-label {
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+        .stat-card:hover::before { opacity: 1; }
+
+        .stat-label {
             font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.12em;
-            color: #64748b;
+            color: var(--text-dim);
             margin-bottom: 0.5rem;
         }
-        .card-value {
+
+        .stat-value {
             font-family: 'JetBrains Mono', monospace;
             font-size: 1.4rem;
             font-weight: 700;
-            color: #f1f5f9;
+            color: var(--text-primary);
         }
-        .card-sub { font-size: 0.8rem; color: #64748b; margin-top: 0.25rem; }
-        .green { color: #22c55e; }
-        .red { color: #ef4444; }
-        .cyan { color: #00d4ff; }
+
+        .stat-sub { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.25rem; }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover { border-color: rgba(255, 255, 255, 0.1); }
+
         .section-title {
             font-family: 'Sora', sans-serif;
-            color: #f1f5f9;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
             margin-bottom: 1rem;
-            font-size: 1.2rem;
         }
+
+        /* Coin cards */
         .coin-card {
-            background: rgba(15,23,55,0.6);
-            border: 1px solid rgba(255,255,255,0.06);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
             border-radius: 16px;
             padding: 1.25rem;
+            transition: all 0.3s ease;
         }
+
+        .coin-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0, 212, 255, 0.08); }
+
         .coin-header { display: flex; align-items: center; gap: 12px; }
-        .coin-img { width: 36px; height: 36px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.06); }
-        .coin-name { font-family: 'Sora', sans-serif; font-weight: 600; color: #f1f5f9; }
-        .coin-symbol { font-size: 0.75rem; color: #64748b; }
-        .coin-price { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; font-weight: 600; color: #f1f5f9; }
+        .coin-img { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--border); }
+        .coin-name { font-family: 'Sora', sans-serif; font-weight: 600; color: var(--text-primary); font-size: 0.95rem; }
+        .coin-symbol { font-size: 0.75rem; color: var(--text-dim); }
+        .coin-price { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; font-weight: 600; color: var(--text-primary); }
+
+        /* Colors */
+        .green { color: var(--green) !important; }
+        .red { color: var(--red) !important; }
+        .cyan { color: var(--accent) !important; }
+        .purple { color: var(--purple) !important; }
+
+        /* Badge */
         .badge {
             display: inline-block;
             padding: 0.3rem 0.85rem;
             border-radius: 9999px;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             font-weight: 600;
             font-family: 'JetBrains Mono', monospace;
         }
-        .badge-buy { background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.25); }
-        .badge-sell { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+
+        .badge-buy { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+        .badge-sell { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
         .badge-hold { background: rgba(107,114,128,0.12); color: #9ca3af; border: 1px solid rgba(107,114,128,0.25); }
+
+        /* Table */
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 10px; color: #94a3b8; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        td { padding: 10px; color: #e2e8f0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+        td { padding: 12px; color: var(--text-secondary); font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        tr:hover td { background: rgba(255,255,255,0.02); }
         .mono { font-family: 'JetBrains Mono', monospace; }
-        .loading { text-align: center; padding: 3rem; color: #64748b; }
+
+        /* Loading */
+        .loading { text-align: center; padding: 4rem 2rem; }
         .loading-spinner {
             display: inline-block;
-            width: 30px; height: 30px;
-            border: 3px solid rgba(0,212,255,0.2);
-            border-top-color: #00d4ff;
+            width: 36px; height: 36px;
+            border: 3px solid rgba(0,212,255,0.15);
+            border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             margin-bottom: 1rem;
         }
+        .loading p { color: var(--text-dim); font-size: 0.85rem; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .feature-bar {
-            display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
-        }
-        .feature-name { flex: 1; font-size: 0.75rem; color: #94a3b8; }
+
+        /* Feature bars */
+        .feature-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .feature-name { flex: 1; font-size: 0.75rem; color: var(--text-muted); }
         .feature-bar-bg { width: 80px; height: 6px; background: rgba(30,41,59,0.8); border-radius: 4px; overflow: hidden; }
-        .feature-bar-fill { height: 100%; border-radius: 4px; }
+        .feature-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
         .feature-value { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; width: 40px; text-align: right; }
-        .tradingview-container { height: 500px; width: 100%; margin-bottom: 1.5rem; border-radius: 16px; overflow: hidden; }
+
+        /* TradingView */
+        .chart-container {
+            width: 100%;
+            height: 520px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .chart-select {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chart-select:focus { border-color: var(--accent); }
+        .chart-select option { background: var(--bg-primary); color: var(--text-secondary); }
+
+        /* Info box */
         .info-box {
             padding: 0.75rem 1.25rem;
-            background: rgba(0,212,255,0.06);
-            border: 1px solid rgba(0,212,255,0.15);
-            border-radius: 10px;
+            background: var(--accent-glow);
+            border: 1px solid rgba(0,212,255,0.2);
+            border-radius: 12px;
             margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-            color: #00d4ff;
+            font-size: 0.85rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+
+        /* Chatbot */
+        .chatbot-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 180px);
+            max-height: 700px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-track { background: transparent; }
+        .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+        .chat-msg {
+            display: flex;
+            gap: 12px;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .chat-msg.user { flex-direction: row-reverse; margin-left: auto; }
+
+        .chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.85rem;
+        }
+
+        .chat-avatar.bot { background: linear-gradient(135deg, #0ea5e9, #06b6d4); }
+        .chat-avatar.user { background: var(--bg-card); border: 1px solid var(--border); }
+
+        .chat-bubble {
+            padding: 0.85rem 1.1rem;
+            border-radius: 16px;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .chat-msg.bot .chat-bubble { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); border-top-left-radius: 4px; }
+        .chat-msg.user .chat-bubble { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border-top-right-radius: 4px; }
+
+        .chat-input-area {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            resize: none;
+            outline: none;
+            min-height: 44px;
+            max-height: 120px;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus { border-color: var(--accent); }
+        .chat-input::placeholder { color: var(--text-dim); }
+
+        .chat-send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .chat-send-btn:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(0, 212, 255, 0.3); }
+        .chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .chat-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0 1.5rem 1rem;
+        }
+
+        .suggestion-chip {
+            padding: 0.4rem 0.85rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: rgba(15, 23, 55, 0.5);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .suggestion-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 0.5rem 0;
+        }
+
+        .typing-dot {
+            width: 6px; height: 6px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Tab content */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Refresh button */
+        .refresh-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* Mobile menu */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 200;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 90;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+        }
+
         @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .overlay.open { display: block; }
+            .mobile-menu-btn { display: flex; }
+            .main { margin-left: 0; padding: 1.5rem 1rem; padding-top: 4rem; }
             .grid-4, .grid-3 { grid-template-columns: repeat(2, 1fr); }
             .grid-2 { grid-template-columns: 1fr; }
-            .header h1 { font-size: 1.8rem; }
+            .chart-container { height: 400px; }
         }
+
         @media (max-width: 480px) {
             .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
-            .tabs { flex-direction: column; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>⚡ BlockTrend-AI</h1>
-            <p>The AI-first crypto intelligence platform — Predict market moves with Random Forest, XGBoost, and LSTM</p>
-        </div>
+    <div class="app">
+        <!-- Mobile menu button -->
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('dashboard')">🏠 Dashboard</button>
-            <button class="tab-btn" onclick="switchTab('signals')">🤖 AI Signals</button>
-            <button class="tab-btn" onclick="switchTab('charts')">📈 Charts</button>
-            <button class="tab-btn" onclick="switchTab('multicoin')">🪙 Multi-Coin</button>
-            <button class="tab-btn" onclick="switchTab('latency')">⚡ Latency</button>
-        </div>
-
-        <!-- Dashboard Tab -->
-        <div id="tab-dashboard" class="tab-content active">
-            <div id="dashboard-loading" class="loading">
-                <div class="loading-spinner"></div>
-                <p>Loading market data...</p>
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">⚡</div>
+                <div class="sidebar-logo-text">BlockTrend-<span>AI</span></div>
             </div>
-            <div id="dashboard-content" style="display:none;"></div>
-        </div>
 
-        <!-- AI Signals Tab -->
-        <div id="tab-signals" class="tab-content">
-            <div id="signals-content"></div>
-        </div>
+            <div class="nav-section">Analytics</div>
+            <div class="nav-item active" onclick="switchTab('dashboard')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                Dashboard
+            </div>
+            <div class="nav-item" onclick="switchTab('charts')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+                Charts
+            </div>
+            <div class="nav-item" onclick="switchTab('signals')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                AI Signals
+            </div>
+            <div class="nav-item" onclick="switchTab('multicoin')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12"/></svg>
+                Multi-Coin
+            </div>
 
-        <!-- Charts Tab -->
-        <div id="tab-charts" class="tab-content">
-            <h2 class="section-title" style="font-size:2rem;background:linear-gradient(135deg,#ffffff 0%,#00d4ff 50%,#0ea5e9 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">📈 TradingView Charts</h2>
-            <p style="color:#64748b;margin-bottom:1.5rem;">Professional-grade charts with real-time data, technical indicators, and drawing tools.</p>
-            <div class="tradingview-container" id="tradingview-widget"></div>
-            <div class="grid-3">
-                <div class="card">
-                    <div class="card-label">Indicators Active</div>
-                    <div style="font-size:0.85rem;color:#e2e8f0;line-height:1.8;margin-top:0.5rem;">
-                        • RSI (14)<br>• MACD (12,26,9)<br>• Bollinger Bands (20,2)
+            <div class="nav-section">Tools</div>
+            <div class="nav-item" onclick="switchTab('chatbot')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                AI Assistant
+            </div>
+            <div class="nav-item" onclick="switchTab('latency')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Latency Check
+            </div>
+
+            <div class="sidebar-footer">
+                <p>BlockTrend-AI © 2024<br>Powered by ML + CoinGecko</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Dashboard -->
+            <div id="tab-dashboard" class="tab-content active">
+                <div class="page-header">
+                    <h1 class="page-title">Market Command Center</h1>
+                    <p class="page-subtitle">Live crypto overview, AI signals, and market pulse — refreshed on demand.</p>
+                </div>
+                <div id="dashboard-loading" class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading market data...</p>
+                </div>
+                <div id="dashboard-content" style="display:none;"></div>
+            </div>
+
+            <!-- Charts -->
+            <div id="tab-charts" class="tab-content">
+                <div class="page-header">
+                    <h1 class="page-title">TradingView Charts</h1>
+                    <p class="page-subtitle">Professional-grade charts with real-time data, technical indicators, and drawing tools.</p>
+                </div>
+                <div class="chart-controls">
+                    <select class="chart-select" id="chart-symbol" onchange="updateChart()">
+                        <option value="BINANCE:BTCUSDT">BTC/USDT</option>
+                        <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+                        <option value="BINANCE:SOLUSDT">SOL/USDT</option>
+                        <option value="BINANCE:ADAUSDT">ADA/USDT</option>
+                        <option value="BINANCE:BNBUSDT">BNB/USDT</option>
+                        <option value="BINANCE:XRPUSDT">XRP/USDT</option>
+                    </select>
+                    <select class="chart-select" id="chart-interval" onchange="updateChart()">
+                        <option value="1">1 min</option>
+                        <option value="5">5 min</option>
+                        <option value="15">15 min</option>
+                        <option value="60" selected>1 hour</option>
+                        <option value="240">4 hours</option>
+                        <option value="D">1 day</option>
+                        <option value="W">1 week</option>
+                    </select>
+                </div>
+                <div class="chart-container" id="tradingview-chart"></div>
+                <div class="grid-3">
+                    <div class="card">
+                        <div class="stat-label">Indicators Active</div>
+                        <div style="font-size:0.85rem;color:var(--text-secondary);line-height:2;margin-top:0.5rem;">
+                            📊 RSI (14)<br>📈 MACD (12,26,9)<br>📉 Bollinger Bands (20,2)
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-label">Chart Settings</div>
+                        <div style="font-size:0.85rem;color:var(--text-secondary);line-height:2;margin-top:0.5rem;">
+                            🕯️ Style: Candlestick<br>🌙 Theme: Dark Terminal<br>✏️ Drawing Tools: Enabled
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-label">Data Source</div>
+                        <div style="font-size:0.85rem;color:var(--text-secondary);line-height:2;margin-top:0.5rem;">
+                            🔗 Exchange: Binance<br>⏱️ Real-time streaming<br>🌐 Global orderbook
+                        </div>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-label">Chart Settings</div>
-                    <div style="font-size:0.85rem;color:#e2e8f0;line-height:1.8;margin-top:0.5rem;">
-                        • Style: Candlestick<br>• Theme: Dark Terminal<br>• Drawing Tools: Enabled
+            </div>
+
+            <!-- AI Signals -->
+            <div id="tab-signals" class="tab-content">
+                <div class="page-header">
+                    <h1 class="page-title">AI Trading Signals</h1>
+                    <p class="page-subtitle">ML ensemble predictions with SHAP-explained feature importance for each signal.</p>
+                </div>
+                <div id="signals-content"></div>
+            </div>
+
+            <!-- Multi-Coin -->
+            <div id="tab-multicoin" class="tab-content">
+                <div class="page-header">
+                    <h1 class="page-title">Multi-Coin Analysis</h1>
+                    <p class="page-subtitle">Compare BTC, ETH, SOL, ADA, BNB, XRP side-by-side with key metrics.</p>
+                </div>
+                <div id="multicoin-loading" class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading multi-coin data...</p>
+                </div>
+                <div id="multicoin-content" style="display:none;"></div>
+            </div>
+
+            <!-- AI Chatbot -->
+            <div id="tab-chatbot" class="tab-content">
+                <div class="page-header">
+                    <h1 class="page-title">AI Trading Assistant</h1>
+                    <p class="page-subtitle">Ask about coins, indicators, market conditions, or trading strategies.</p>
+                </div>
+                <div class="card chatbot-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="chat-msg bot">
+                            <div class="chat-avatar bot">🤖</div>
+                            <div class="chat-bubble">Hi! I'm the BlockTrend-AI assistant. Ask me about any coin, indicator, market conditions, or trading strategy. I'll provide structured analysis with directional bias and confidence levels.
+
+Try asking:
+• "Should I buy BTC right now?"
+• "Explain the RSI indicator"
+• "Compare BTC vs ETH momentum"</div>
+                        </div>
+                    </div>
+                    <div class="chat-suggestions" id="chat-suggestions">
+                        <div class="suggestion-chip" onclick="sendSuggestion(this)">Should I buy BTC?</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion(this)">Explain RSI indicator</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion(this)">Today's market summary</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion(this)">BTC vs ETH momentum</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion(this)">SOL short-term forecast</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion(this)">What is MACD?</div>
+                    </div>
+                    <div class="chat-input-area">
+                        <textarea class="chat-input" id="chat-input" placeholder="Ask about crypto markets, indicators, or strategies..." rows="1" onkeydown="handleChatKey(event)"></textarea>
+                        <button class="chat-send-btn" id="chat-send-btn" onclick="sendMessage()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        </button>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-label">Current Symbol</div>
-                    <div style="font-size:0.85rem;color:#00d4ff;line-height:1.8;margin-top:0.5rem;">
-                        📈 BINANCE:BTCUSDT<br>⏱️ Interval: 1H
-                    </div>
+            </div>
+
+            <!-- Latency -->
+            <div id="tab-latency" class="tab-content">
+                <div class="page-header">
+                    <h1 class="page-title">Latency Monitor</h1>
+                    <p class="page-subtitle">Real-time API latency monitoring — measures response times for all data sources.</p>
                 </div>
+                <div id="latency-loading" class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Running latency checks...</p>
+                </div>
+                <div id="latency-content" style="display:none;"></div>
             </div>
-        </div>
-
-        <!-- Multi-Coin Tab -->
-        <div id="tab-multicoin" class="tab-content">
-            <div id="multicoin-loading" class="loading">
-                <div class="loading-spinner"></div>
-                <p>Loading multi-coin data...</p>
-            </div>
-            <div id="multicoin-content" style="display:none;"></div>
-        </div>
-
-        <!-- Latency Tab -->
-        <div id="tab-latency" class="tab-content">
-            <div id="latency-loading" class="loading">
-                <div class="loading-spinner"></div>
-                <p>Running latency checks...</p>
-            </div>
-            <div id="latency-content" style="display:none;"></div>
-        </div>
+        </main>
     </div>
 
     <script>
         // ============================================================
-        // TAB SWITCHING
+        // NAVIGATION
         // ============================================================
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
-            event.target.classList.add('active');
+            event.currentTarget.classList.add('active');
 
-            if (tabId === 'dashboard') loadDashboard();
+            // Close mobile sidebar
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('overlay').classList.remove('open');
+
+            if (tabId === 'dashboard' && !dashboardLoaded) loadDashboard();
             if (tabId === 'multicoin') loadMultiCoin();
             if (tabId === 'latency') runLatencyCheck();
             if (tabId === 'signals') renderSignals();
-            if (tabId === 'charts') loadTradingView();
+            if (tabId === 'charts') loadChart();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('open');
         }
 
         // ============================================================
-        // DATA
+        // DATA & UTILITIES
         // ============================================================
+        let dashboardLoaded = false;
+        let chartLoaded = false;
+
         const SIGNALS = [
-            {
-                coin: "Bitcoin", symbol: "BTC", action: "BUY",
-                confidence: 87, expected_change: 4.2,
-                models: [
-                    {name: "Random Forest", vote: "BUY", weight: 0.79},
-                    {name: "XGBoost", vote: "BUY", weight: 0.83},
-                    {name: "LSTM (24h)", vote: "BUY", weight: 0.87},
-                ],
-                features: [
-                    {name: "MACD Crossover", impact: 0.32, direction: "positive"},
-                    {name: "RSI Momentum", impact: 0.24, direction: "positive"},
-                    {name: "Volume Surge", impact: 0.18, direction: "positive"},
-                    {name: "Sentiment Score", impact: 0.15, direction: "positive"},
-                    {name: "Bollinger Width", impact: 0.11, direction: "negative"},
-                ],
+            { coin: "Bitcoin", symbol: "BTC", action: "BUY", confidence: 87, expected_change: 4.2,
+              models: [{name: "Random Forest", vote: "BUY", weight: 0.79}, {name: "XGBoost", vote: "BUY", weight: 0.83}, {name: "LSTM (24h)", vote: "BUY", weight: 0.87}],
+              features: [{name: "MACD Crossover", impact: 0.32, direction: "positive"}, {name: "RSI Momentum", impact: 0.24, direction: "positive"}, {name: "Volume Surge", impact: 0.18, direction: "positive"}, {name: "Sentiment Score", impact: 0.15, direction: "positive"}, {name: "Bollinger Width", impact: 0.11, direction: "negative"}]
             },
-            {
-                coin: "Ethereum", symbol: "ETH", action: "BUY",
-                confidence: 74, expected_change: 2.8,
-                models: [
-                    {name: "Random Forest", vote: "BUY", weight: 0.72},
-                    {name: "XGBoost", vote: "BUY", weight: 0.76},
-                    {name: "LSTM (24h)", vote: "BUY", weight: 0.74},
-                ],
-                features: [
-                    {name: "EMA Crossover", impact: 0.28, direction: "positive"},
-                    {name: "DeFi TVL Growth", impact: 0.22, direction: "positive"},
-                    {name: "Gas Fee Decline", impact: 0.19, direction: "positive"},
-                    {name: "Whale Activity", impact: 0.17, direction: "positive"},
-                    {name: "Correlation BTC", impact: 0.14, direction: "negative"},
-                ],
+            { coin: "Ethereum", symbol: "ETH", action: "BUY", confidence: 74, expected_change: 2.8,
+              models: [{name: "Random Forest", vote: "BUY", weight: 0.72}, {name: "XGBoost", vote: "BUY", weight: 0.76}, {name: "LSTM (24h)", vote: "BUY", weight: 0.74}],
+              features: [{name: "EMA Crossover", impact: 0.28, direction: "positive"}, {name: "DeFi TVL Growth", impact: 0.22, direction: "positive"}, {name: "Gas Fee Decline", impact: 0.19, direction: "positive"}, {name: "Whale Activity", impact: 0.17, direction: "positive"}, {name: "Correlation BTC", impact: 0.14, direction: "negative"}]
             },
-            {
-                coin: "Solana", symbol: "SOL", action: "HOLD",
-                confidence: 62, expected_change: 0.8,
-                models: [
-                    {name: "Random Forest", vote: "HOLD", weight: 0.61},
-                    {name: "XGBoost", vote: "BUY", weight: 0.65},
-                    {name: "LSTM (24h)", vote: "HOLD", weight: 0.60},
-                ],
-                features: [
-                    {name: "Network Activity", impact: 0.25, direction: "positive"},
-                    {name: "RSI Neutral", impact: 0.20, direction: "negative"},
-                    {name: "Volume Flat", impact: 0.18, direction: "negative"},
-                    {name: "Dev Activity", impact: 0.22, direction: "positive"},
-                    {name: "Market Correlation", impact: 0.15, direction: "negative"},
-                ],
+            { coin: "Solana", symbol: "SOL", action: "HOLD", confidence: 62, expected_change: 0.8,
+              models: [{name: "Random Forest", vote: "HOLD", weight: 0.61}, {name: "XGBoost", vote: "BUY", weight: 0.65}, {name: "LSTM (24h)", vote: "HOLD", weight: 0.60}],
+              features: [{name: "Network Activity", impact: 0.25, direction: "positive"}, {name: "RSI Neutral", impact: 0.20, direction: "negative"}, {name: "Volume Flat", impact: 0.18, direction: "negative"}, {name: "Dev Activity", impact: 0.22, direction: "positive"}, {name: "Market Correlation", impact: 0.15, direction: "negative"}]
             },
-            {
-                coin: "Cardano", symbol: "ADA", action: "SELL",
-                confidence: 68, expected_change: -2.1,
-                models: [
-                    {name: "Random Forest", vote: "SELL", weight: 0.66},
-                    {name: "XGBoost", vote: "SELL", weight: 0.70},
-                    {name: "LSTM (24h)", vote: "SELL", weight: 0.68},
-                ],
-                features: [
-                    {name: "Bearish Divergence", impact: 0.30, direction: "negative"},
-                    {name: "Volume Decline", impact: 0.25, direction: "negative"},
-                    {name: "Support Break", impact: 0.20, direction: "negative"},
-                    {name: "Sentiment Drop", impact: 0.15, direction: "negative"},
-                    {name: "Staking Outflow", impact: 0.10, direction: "negative"},
-                ],
+            { coin: "Cardano", symbol: "ADA", action: "SELL", confidence: 68, expected_change: -2.1,
+              models: [{name: "Random Forest", vote: "SELL", weight: 0.66}, {name: "XGBoost", vote: "SELL", weight: 0.70}, {name: "LSTM (24h)", vote: "SELL", weight: 0.68}],
+              features: [{name: "Bearish Divergence", impact: 0.30, direction: "negative"}, {name: "Volume Decline", impact: 0.25, direction: "negative"}, {name: "Support Break", impact: 0.20, direction: "negative"}, {name: "Sentiment Drop", impact: 0.15, direction: "negative"}, {name: "Staking Outflow", impact: 0.10, direction: "negative"}]
             },
         ];
 
-        // ============================================================
-        // UTILITIES
-        // ============================================================
+        // AI Chatbot responses
+        const AI_RESPONSES = {
+            "btc": "**Bitcoin (BTC) Analysis**\n\n📊 **Directional Bias:** Bullish\n🎯 **Confidence:** 87%\n\n**Key Factors:**\n• MACD showing bullish crossover on 4H timeframe\n• RSI at 62 — momentum building, not yet overbought\n• Volume surge +18% above 20-day average\n• Institutional inflows remain strong\n\n**Technical Levels:**\n• Support: $64,200 / $61,800\n• Resistance: $69,500 / $72,000\n\n**Recommendation:** Accumulate on dips toward $64K-$65K zone. Set stop-loss below $61,500.\n\n⚠️ *This is not financial advice. Always manage your risk.*",
+            "eth": "**Ethereum (ETH) Analysis**\n\n📊 **Directional Bias:** Bullish\n🎯 **Confidence:** 74%\n\n**Key Factors:**\n• EMA 20/50 golden cross forming on daily\n• DeFi TVL growing +8% week-over-week\n• Gas fees declining — improved network efficiency\n• ETH/BTC ratio showing strength\n\n**Technical Levels:**\n• Support: $3,200 / $3,050\n• Resistance: $3,600 / $3,850\n\n**Recommendation:** Bullish bias with target at $3,600. Watch BTC correlation for confirmation.\n\n⚠️ *This is not financial advice. Always manage your risk.*",
+            "sol": "**Solana (SOL) Analysis**\n\n📊 **Directional Bias:** Neutral\n🎯 **Confidence:** 62%\n\n**Key Factors:**\n• Network activity strong but price consolidating\n• RSI at 48 — neutral territory\n• Volume relatively flat vs 20-day average\n• Developer activity remains high (positive long-term)\n\n**Technical Levels:**\n• Support: $135 / $128\n• Resistance: $155 / $165\n\n**Recommendation:** Wait for breakout above $155 for long entry, or accumulate slowly in $130-$140 range.\n\n⚠️ *This is not financial advice. Always manage your risk.*",
+            "rsi": "**RSI (Relative Strength Index) Explained**\n\n📐 **What it is:** A momentum oscillator that measures speed and magnitude of price changes on a 0-100 scale.\n\n**How to read it:**\n• **Above 70** → Overbought (potential reversal down)\n• **Below 30** → Oversold (potential reversal up)\n• **50 line** → Trend direction indicator\n\n**Example:**\nIf BTC's RSI drops from 75 to 65, it suggests momentum is weakening even if price hasn't fallen yet — early warning of potential pullback.\n\n**Pro tips:**\n• Look for RSI divergence (price makes new high, RSI doesn't)\n• Use 14-period as default\n• Combine with volume for confirmation\n• In strong trends, RSI can stay overbought/oversold for extended periods",
+            "macd": "**MACD (Moving Average Convergence Divergence) Explained**\n\n📐 **What it is:** A trend-following momentum indicator showing the relationship between two EMAs.\n\n**Components:**\n• **MACD Line** = EMA(12) - EMA(26)\n• **Signal Line** = EMA(9) of MACD Line\n• **Histogram** = MACD Line - Signal Line\n\n**Key Signals:**\n• **Bullish crossover:** MACD crosses above Signal → Buy signal\n• **Bearish crossover:** MACD crosses below Signal → Sell signal\n• **Histogram growing:** Momentum increasing\n• **Divergence:** Price vs MACD disagreement → potential reversal\n\n**Example:**\nWhen BTC's MACD line crosses above the signal line while both are below zero, it's a strong bullish signal — momentum is shifting from bearish to bullish.",
+            "market": "**Today's Crypto Market Summary**\n\n🌍 **Overall Sentiment:** Cautiously Bullish\n\n**Market Overview:**\n• Total crypto market cap: ~$2.4T\n• BTC dominance: ~52%\n• 24h total volume: ~$85B\n• Fear & Greed Index: 65 (Greed)\n\n**Key Observations:**\n• BTC holding above key support with strong volume\n• ETH showing relative strength vs BTC\n• Altcoins mixed — large caps outperforming small caps\n• DeFi sector seeing renewed interest\n\n**Risk Factors:**\n• Macro uncertainty (Fed policy)\n• Potential regulatory news\n• Leveraged positions building up\n\n**Outlook:** Bullish bias for next 24-48h, but watch for potential volatility around macro events.\n\n⚠️ *This is not financial advice. Always manage your risk.*",
+            "compare": "**BTC vs ETH Momentum Comparison**\n\n| Metric | BTC | ETH |\n|--------|-----|-----|\n| RSI (14) | 62 | 58 |\n| MACD Signal | Bullish | Forming |\n| Volume Trend | +18% | +12% |\n| 7d Change | +5.2% | +3.8% |\n| Confidence | 87% | 74% |\n\n**Analysis:**\n• BTC leading the current move with stronger momentum\n• ETH lagging but showing signs of catching up\n• ETH/BTC ratio at key support — potential rotation into ETH soon\n• Both have bullish bias but BTC has higher conviction\n\n**Strategy:**\n• Overweight BTC for momentum play\n• Start building ETH position for potential catch-up trade\n• Watch ETH/BTC ratio for rotation signal\n\n⚠️ *This is not financial advice. Always manage your risk.*",
+            "default": "**Analysis**\n\nI can help you with:\n\n• **Coin analysis** — Ask about BTC, ETH, SOL, ADA, or any major crypto\n• **Technical indicators** — RSI, MACD, Bollinger Bands, EMA, etc.\n• **Market overview** — Current conditions, sentiment, key levels\n• **Comparisons** — Side-by-side analysis of different assets\n• **Trading strategies** — Entry/exit points, risk management\n\nTry being specific, e.g.:\n• \"What's the RSI telling us about BTC right now?\"\n• \"Is SOL a good buy at current levels?\"\n• \"Explain Bollinger Bands with an example\"\n\n⚠️ *Remember: I provide analysis, not financial advice. Always do your own research.*"
+        };
+
         function formatUSD(n) {
             if (n >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
             if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
@@ -343,6 +829,7 @@
             const content = document.getElementById('dashboard-content');
             try {
                 const data = await fetchMarketData();
+                dashboardLoaded = true;
                 const totalCap = data.reduce((s, c) => s + c.market_cap, 0);
                 const totalVol = data.reduce((s, c) => s + c.total_volume, 0);
                 const avgChange = data.reduce((s, c) => s + c.price_change_percentage_24h, 0) / data.length;
@@ -350,30 +837,29 @@
                 const changeClass = avgChange >= 0 ? 'green' : 'red';
 
                 let html = `
-                    <h2 class="section-title" style="font-size:2rem;background:linear-gradient(135deg,#ffffff 0%,#00d4ff 50%,#0ea5e9 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Market Command Center</h2>
-                    <p style="color:#64748b;margin-bottom:1.5rem;">Live crypto overview, AI signals, and market pulse — refreshed on demand.</p>
                     <div class="grid-4">
-                        <div class="card" style="text-align:center;">
-                            <div class="card-label">Total Market Cap</div>
-                            <div class="card-value">${formatUSD(totalCap)}</div>
-                            <div class="card-sub ${changeClass}">${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%</div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Market Cap</div>
+                            <div class="stat-value">${formatUSD(totalCap)}</div>
+                            <div class="stat-sub ${changeClass}">${avgChange >= 0 ? '▲' : '▼'} ${avgChange.toFixed(2)}%</div>
                         </div>
-                        <div class="card" style="text-align:center;">
-                            <div class="card-label">24h Volume</div>
-                            <div class="card-value">${formatUSD(totalVol)}</div>
-                            <div class="card-sub">${data.length} coins tracked</div>
+                        <div class="stat-card">
+                            <div class="stat-label">24h Volume</div>
+                            <div class="stat-value">${formatUSD(totalVol)}</div>
+                            <div class="stat-sub">${data.length} coins tracked</div>
                         </div>
-                        <div class="card" style="text-align:center;">
-                            <div class="card-label">Bullish Signals</div>
-                            <div class="card-value green">${bullish} / ${data.length}</div>
-                            <div class="card-sub">AI ensemble</div>
+                        <div class="stat-card">
+                            <div class="stat-label">Bullish Signals</div>
+                            <div class="stat-value green">${bullish} / ${data.length}</div>
+                            <div class="stat-sub">AI ensemble</div>
                         </div>
-                        <div class="card" style="text-align:center;">
-                            <div class="card-label">AI Confidence</div>
-                            <div class="card-value cyan">87%</div>
-                            <div class="card-sub">LSTM 24h forecast</div>
+                        <div class="stat-card">
+                            <div class="stat-label">AI Confidence</div>
+                            <div class="stat-value cyan">87%</div>
+                            <div class="stat-sub">LSTM 24h forecast</div>
                         </div>
                     </div>
+
                     <h3 class="section-title">📊 Live Prices</h3>
                     <div class="grid-3">
                 `;
@@ -403,27 +889,47 @@
                     <h3 class="section-title">🧠 ML Ensemble Status</h3>
                     <div class="card" style="overflow-x:auto;">
                         <table>
-                            <thead><tr>
-                                <th>Model</th><th>Vote</th><th>Confidence</th><th>Features</th>
-                            </tr></thead>
+                            <thead><tr><th>Model</th><th>Vote</th><th>Confidence</th><th>Method</th></tr></thead>
                             <tbody>
-                                <tr><td>Random Forest</td><td class="green" style="font-weight:600;">BUY</td><td>79%</td><td style="color:#94a3b8;">42 technical indicators</td></tr>
-                                <tr><td>XGBoost</td><td class="green" style="font-weight:600;">BUY</td><td>83%</td><td style="color:#94a3b8;">Gradient boosted trees</td></tr>
-                                <tr><td>LSTM (24h)</td><td class="green" style="font-weight:600;">BUY</td><td>87%</td><td style="color:#94a3b8;">Sequential price patterns</td></tr>
+                                <tr><td style="font-weight:500;">Random Forest</td><td class="green" style="font-weight:600;">BUY</td><td class="mono">79%</td><td style="color:var(--text-muted);">42 technical indicators</td></tr>
+                                <tr><td style="font-weight:500;">XGBoost</td><td class="green" style="font-weight:600;">BUY</td><td class="mono">83%</td><td style="color:var(--text-muted);">Gradient boosted trees</td></tr>
+                                <tr><td style="font-weight:500;">LSTM (24h)</td><td class="green" style="font-weight:600;">BUY</td><td class="mono">87%</td><td style="color:var(--text-muted);">Sequential price patterns</td></tr>
                             </tbody>
                         </table>
                     </div>
-                    <p style="color:#475569;font-size:0.8rem;margin-top:1rem;">Last updated: ${new Date().toISOString().replace('T', ' ').slice(0, 19)} UTC</p>
+                    <p style="color:var(--text-dim);font-size:0.75rem;margin-top:1rem;">Last updated: ${new Date().toISOString().replace('T', ' ').slice(0, 19)} UTC</p>
                 `;
 
                 content.innerHTML = html;
                 loading.style.display = 'none';
                 content.style.display = 'block';
             } catch (e) {
-                content.innerHTML = '<div style="color:#ef4444;padding:20px;">⚠️ Unable to fetch market data. CoinGecko API may be rate-limited. Try again shortly.</div>';
+                content.innerHTML = '<div class="info-box" style="border-color:rgba(239,68,68,0.3);color:var(--red);background:var(--red-bg);">⚠️ Unable to fetch market data. CoinGecko API may be rate-limited. Try again shortly.</div>';
                 loading.style.display = 'none';
                 content.style.display = 'block';
             }
+        }
+
+        // ============================================================
+        // TRADINGVIEW CHART (using iframe widget)
+        // ============================================================
+        function loadChart() {
+            updateChart();
+        }
+
+        function updateChart() {
+            const symbol = document.getElementById('chart-symbol').value;
+            const interval = document.getElementById('chart-interval').value;
+            const container = document.getElementById('tradingview-chart');
+            
+            container.innerHTML = `<iframe 
+                src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_widget&symbol=${symbol}&interval=${interval}&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=RSI%40tv-basicstudies%1EMACD%40tv-basicstudies%1EBB%40tv-basicstudies&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=&utm_medium=widget_new&utm_campaign=chart&utm_term=${symbol}"
+                style="width:100%;height:100%;border:none;"
+                allowtransparency="true"
+                scrolling="no"
+                allowfullscreen
+            ></iframe>`;
+            chartLoaded = true;
         }
 
         // ============================================================
@@ -437,13 +943,11 @@
             const avgConf = SIGNALS.reduce((s, x) => s + x.confidence, 0) / SIGNALS.length;
 
             let html = `
-                <h2 class="section-title" style="font-size:2rem;background:linear-gradient(135deg,#ffffff 0%,#00d4ff 50%,#0ea5e9 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🤖 AI Signals</h2>
-                <p style="color:#64748b;margin-bottom:1.5rem;">ML ensemble predictions with SHAP-explained feature importance for each signal.</p>
                 <div class="grid-4">
-                    <div class="card" style="text-align:center;"><div class="card-label">Buy Signals</div><div class="card-value green">${buyCount}</div></div>
-                    <div class="card" style="text-align:center;"><div class="card-label">Sell Signals</div><div class="card-value red">${sellCount}</div></div>
-                    <div class="card" style="text-align:center;"><div class="card-label">Hold Signals</div><div class="card-value" style="color:#9ca3af;">${holdCount}</div></div>
-                    <div class="card" style="text-align:center;"><div class="card-label">Avg Confidence</div><div class="card-value cyan">${avgConf.toFixed(0)}%</div></div>
+                    <div class="stat-card"><div class="stat-label">Buy Signals</div><div class="stat-value green">${buyCount}</div></div>
+                    <div class="stat-card"><div class="stat-label">Sell Signals</div><div class="stat-value red">${sellCount}</div></div>
+                    <div class="stat-card"><div class="stat-label">Hold Signals</div><div class="stat-value" style="color:#9ca3af;">${holdCount}</div></div>
+                    <div class="stat-card"><div class="stat-label">Avg Confidence</div><div class="stat-value cyan">${avgConf.toFixed(0)}%</div></div>
                 </div>
                 <div class="grid-2">
             `;
@@ -455,26 +959,26 @@
 
                 html += `<div class="card">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-                        <div><span style="font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:600;color:#f1f5f9;">${signal.coin}</span> <span style="color:#64748b;font-size:0.85rem;">${signal.symbol}</span></div>
+                        <div><span style="font-family:'Sora',sans-serif;font-size:1.05rem;font-weight:600;color:var(--text-primary);">${signal.coin}</span> <span style="color:var(--text-dim);font-size:0.85rem;">${signal.symbol}</span></div>
                         <span class="badge ${badgeClass}">${signal.action} · ${signal.confidence}%</span>
                     </div>
                     <div class="${changeColor}" style="font-size:0.85rem;margin-bottom:1rem;">${arrow} ${signal.expected_change >= 0 ? '+' : ''}${signal.expected_change.toFixed(1)}% expected (24h)</div>
                     <div style="margin-bottom:0.75rem;">
-                        <div class="card-label">Model Votes</div>`;
+                        <div class="stat-label" style="margin-bottom:0.5rem;">Model Votes</div>`;
 
                 signal.models.forEach(m => {
                     const voteColor = m.vote === 'BUY' ? 'green' : (m.vote === 'SELL' ? 'red' : '');
                     html += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:0.8rem;">
-                        <span style="color:#94a3b8;">${m.name}</span>
+                        <span style="color:var(--text-muted);">${m.name}</span>
                         <span class="${voteColor}" style="font-weight:600;">${m.vote} (${(m.weight*100).toFixed(0)}%)</span>
                     </div>`;
                 });
 
-                html += `</div><div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:0.75rem;">
-                    <div class="card-label">SHAP Features</div>`;
+                html += `</div><div style="border-top:1px solid var(--border);padding-top:0.75rem;">
+                    <div class="stat-label" style="margin-bottom:0.5rem;">SHAP Feature Importance</div>`;
 
                 signal.features.forEach(f => {
-                    const fColor = f.direction === 'positive' ? '#22c55e' : '#ef4444';
+                    const fColor = f.direction === 'positive' ? 'var(--green)' : 'var(--red)';
                     const sign = f.direction === 'positive' ? '+' : '-';
                     const barWidth = (f.impact * 300);
                     html += `<div class="feature-bar">
@@ -492,55 +996,22 @@
         }
 
         // ============================================================
-        // TRADINGVIEW
-        // ============================================================
-        let tvLoaded = false;
-        function loadTradingView() {
-            if (tvLoaded) return;
-            tvLoaded = true;
-            const container = document.getElementById('tradingview-widget');
-            container.innerHTML = `
-                <div class="tradingview-widget-container" style="height:100%;width:100%;">
-                    <div class="tradingview-widget-container__widget" style="height:100%;width:100%;"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                    {
-                        "autosize": true,
-                        "symbol": "BINANCE:BTCUSDT",
-                        "interval": "60",
-                        "timezone": "Etc/UTC",
-                        "theme": "dark",
-                        "style": "1",
-                        "locale": "en",
-                        "backgroundColor": "rgba(7, 11, 26, 1)",
-                        "gridColor": "rgba(42, 46, 78, 0.2)",
-                        "hide_side_toolbar": false,
-                        "allow_symbol_change": true,
-                        "calendar": false,
-                        "studies": ["RSI@tv-basicstudies", "MACD@tv-basicstudies", "BB@tv-basicstudies"],
-                        "support_host": "https://www.tradingview.com"
-                    }
-                    <\/script>
-                </div>
-            `;
-        }
-
-        // ============================================================
         // MULTI-COIN
         // ============================================================
         async function loadMultiCoin() {
             const loading = document.getElementById('multicoin-loading');
             const content = document.getElementById('multicoin-content');
+            loading.style.display = 'block';
+            content.style.display = 'none';
             try {
                 const data = await fetchMarketData();
                 let html = `
-                    <h2 class="section-title" style="font-size:2rem;background:linear-gradient(135deg,#ffffff 0%,#00d4ff 50%,#0ea5e9 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🪙 Multi-Coin Analysis</h2>
-                    <p style="color:#64748b;margin-bottom:1.5rem;">Compare BTC, ETH, SOL, ADA, BNB, XRP side-by-side with key metrics.</p>
-                    <div class="card" style="overflow-x:auto;margin-bottom:2rem;">
+                    <div class="card" style="overflow-x:auto;margin-bottom:1.5rem;">
                         <table style="min-width:700px;">
                             <thead><tr>
                                 <th>Coin</th><th style="text-align:right;">Price</th><th style="text-align:right;">24h Change</th>
-                                <th style="text-align:right;">Market Cap</th><th style="text-align:right;">24h Volume</th>
-                                <th style="text-align:right;">24h High</th><th style="text-align:right;">24h Low</th>
+                                <th style="text-align:right;">Market Cap</th><th style="text-align:right;">Volume</th>
+                                <th style="text-align:right;">High</th><th style="text-align:right;">Low</th>
                             </tr></thead><tbody>
                 `;
 
@@ -548,9 +1019,9 @@
                     const change = coin.price_change_percentage_24h;
                     const color = change >= 0 ? 'green' : 'red';
                     html += `<tr>
-                        <td><div style="display:flex;align-items:center;gap:8px;"><img src="${coin.image}" width="24" height="24" style="border-radius:50%;"> ${coin.symbol.toUpperCase()} <span style="color:#64748b;font-size:0.8rem;">(${coin.name})</span></div></td>
-                        <td class="mono" style="text-align:right;">${formatUSD(coin.current_price)}</td>
-                        <td class="mono ${color}" style="text-align:right;">${change >= 0 ? '+' : ''}${change.toFixed(2)}%</td>
+                        <td><div style="display:flex;align-items:center;gap:10px;"><img src="${coin.image}" width="28" height="28" style="border-radius:50%;"> <strong>${coin.symbol.toUpperCase()}</strong> <span style="color:var(--text-dim);font-size:0.75rem;">${coin.name}</span></div></td>
+                        <td class="mono" style="text-align:right;font-weight:600;">${formatUSD(coin.current_price)}</td>
+                        <td class="mono ${color}" style="text-align:right;font-weight:600;">${change >= 0 ? '+' : ''}${change.toFixed(2)}%</td>
                         <td class="mono" style="text-align:right;">${formatUSD(coin.market_cap)}</td>
                         <td class="mono" style="text-align:right;">${formatUSD(coin.total_volume)}</td>
                         <td class="mono green" style="text-align:right;">${formatUSD(coin.high_24h)}</td>
@@ -559,7 +1030,7 @@
                 });
 
                 html += `</tbody></table></div>
-                    <h3 class="section-title">🪙 Detailed Coin Cards</h3>
+                    <h3 class="section-title">Detailed Cards</h3>
                     <div class="grid-3">`;
 
                 data.forEach(coin => {
@@ -571,13 +1042,13 @@
                             <img class="coin-img" src="${coin.image}" style="width:40px;height:40px;" alt="${coin.name}">
                             <div><div class="coin-name">${coin.name}</div><div class="coin-symbol">${coin.symbol.toUpperCase()}</div></div>
                         </div>
-                        <div class="mono" style="font-size:1.4rem;font-weight:700;color:#f1f5f9;">${formatUSD(coin.current_price)}</div>
+                        <div class="mono" style="font-size:1.3rem;font-weight:700;color:var(--text-primary);">${formatUSD(coin.current_price)}</div>
                         <div class="${color}" style="font-size:0.85rem;margin-top:0.25rem;">${arrow} ${change >= 0 ? '+' : ''}${change.toFixed(2)}%</div>
                         <div style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.75rem;">
-                            <div><span style="color:#64748b;">Market Cap</span><br><span class="mono" style="color:#e2e8f0;">${formatUSD(coin.market_cap)}</span></div>
-                            <div><span style="color:#64748b;">Volume</span><br><span class="mono" style="color:#e2e8f0;">${formatUSD(coin.total_volume)}</span></div>
-                            <div><span style="color:#64748b;">24h High</span><br><span class="mono green">${formatUSD(coin.high_24h)}</span></div>
-                            <div><span style="color:#64748b;">24h Low</span><br><span class="mono red">${formatUSD(coin.low_24h)}</span></div>
+                            <div><span style="color:var(--text-dim);">Market Cap</span><br><span class="mono">${formatUSD(coin.market_cap)}</span></div>
+                            <div><span style="color:var(--text-dim);">Volume</span><br><span class="mono">${formatUSD(coin.total_volume)}</span></div>
+                            <div><span style="color:var(--text-dim);">24h High</span><br><span class="mono green">${formatUSD(coin.high_24h)}</span></div>
+                            <div><span style="color:var(--text-dim);">24h Low</span><br><span class="mono red">${formatUSD(coin.low_24h)}</span></div>
                         </div>
                     </div>`;
                 });
@@ -587,7 +1058,7 @@
                 loading.style.display = 'none';
                 content.style.display = 'block';
             } catch (e) {
-                content.innerHTML = '<div style="color:#ef4444;padding:20px;">⚠️ Unable to fetch market data. CoinGecko API may be rate-limited.</div>';
+                content.innerHTML = '<div class="info-box" style="border-color:rgba(239,68,68,0.3);color:var(--red);background:var(--red-bg);">⚠️ Unable to fetch market data. CoinGecko API may be rate-limited.</div>';
                 loading.style.display = 'none';
                 content.style.display = 'block';
             }
@@ -599,6 +1070,9 @@
         async function runLatencyCheck() {
             const loading = document.getElementById('latency-loading');
             const content = document.getElementById('latency-content');
+            loading.style.display = 'block';
+            content.style.display = 'none';
+
             const endpoints = [
                 {url: 'https://api.coingecko.com/api/v3/ping', label: 'CoinGecko API'},
                 {url: 'https://s3.tradingview.com/tv.js', label: 'TradingView CDN'},
@@ -617,49 +1091,45 @@
                 }
             }
 
-            let html = `
-                <h2 class="section-title" style="font-size:2rem;background:linear-gradient(135deg,#ffffff 0%,#00d4ff 50%,#0ea5e9 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">⚡ Latency Check</h2>
-                <p style="color:#64748b;margin-bottom:1.5rem;">Real-time API latency monitoring — measures response times for all data sources.</p>
-                <div class="grid-3">
-            `;
+            let html = `<div class="grid-3">`;
 
             results.forEach(r => {
                 let display, color, indicator, label;
-                if (r.latency === null) { display = 'N/A'; color = '#ef4444'; indicator = '🔴'; label = 'Error'; }
-                else if (r.latency < 200) { display = r.latency + 'ms'; color = '#22c55e'; indicator = '🟢'; label = 'Excellent'; }
-                else if (r.latency < 500) { display = r.latency + 'ms'; color = '#eab308'; indicator = '🟡'; label = 'Good'; }
-                else { display = r.latency + 'ms'; color = '#ef4444'; indicator = '🔴'; label = 'Slow'; }
+                if (r.latency === null) { display = 'N/A'; color = 'var(--red)'; indicator = '🔴'; label = 'Error'; }
+                else if (r.latency < 200) { display = r.latency + 'ms'; color = 'var(--green)'; indicator = '🟢'; label = 'Excellent'; }
+                else if (r.latency < 500) { display = r.latency + 'ms'; color = 'var(--yellow)'; indicator = '🟡'; label = 'Good'; }
+                else { display = r.latency + 'ms'; color = 'var(--red)'; indicator = '🔴'; label = 'Slow'; }
 
-                html += `<div class="card" style="text-align:center;">
-                    <div class="card-label">${r.label}</div>
+                html += `<div class="stat-card">
+                    <div class="stat-label">${r.label}</div>
                     <div class="mono" style="font-size:1.8rem;font-weight:700;color:${color};">${display}</div>
-                    <div style="margin-top:0.5rem;font-size:0.85rem;color:#94a3b8;">${indicator} ${label}</div>
+                    <div style="margin-top:0.5rem;font-size:0.85rem;color:var(--text-muted);">${indicator} ${label}</div>
                 </div>`;
             });
+
+            html += `</div>`;
 
             const validLatencies = results.filter(r => r.latency !== null).map(r => r.latency);
             if (validLatencies.length > 0) {
                 const avg = Math.round(validLatencies.reduce((a, b) => a + b, 0) / validLatencies.length);
-                html += `</div><div class="info-box">⚡ Average latency: <strong>${avg}ms</strong> across ${validLatencies.length} endpoints</div>`;
-            } else {
-                html += `</div>`;
+                html += `<div class="info-box">⚡ Average latency: <strong>${avg}ms</strong> across ${validLatencies.length} endpoints</div>`;
             }
 
             html += `<div class="grid-2">
                 <div class="card">
-                    <div class="card-label">Performance Thresholds</div>
-                    <div style="font-size:0.85rem;color:#e2e8f0;line-height:2;">
+                    <div class="stat-label" style="margin-bottom:0.75rem;">Performance Thresholds</div>
+                    <div style="font-size:0.85rem;color:var(--text-secondary);line-height:2.2;">
                         🟢 <strong>Excellent:</strong> &lt; 200ms<br>
                         🟡 <strong>Good:</strong> 200-500ms<br>
                         🔴 <strong>Slow:</strong> &gt; 500ms
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-label">Connection Info</div>
-                    <div style="font-size:0.85rem;color:#e2e8f0;line-height:2;">
-                        📡 <strong>Endpoints:</strong> 3<br>
-                        🔄 <strong>Mode:</strong> On-demand<br>
-                        📊 <strong>Protocol:</strong> HTTPS
+                    <div class="stat-label" style="margin-bottom:0.75rem;">Connection Info</div>
+                    <div style="font-size:0.85rem;color:var(--text-secondary);line-height:2.2;">
+                        📡 <strong>Endpoints:</strong> 3 monitored<br>
+                        🔄 <strong>Mode:</strong> On-demand check<br>
+                        📊 <strong>Protocol:</strong> HTTPS/TLS 1.3
                     </div>
                 </div>
             </div>`;
@@ -667,6 +1137,96 @@
             content.innerHTML = html;
             loading.style.display = 'none';
             content.style.display = 'block';
+        }
+
+        // ============================================================
+        // AI CHATBOT
+        // ============================================================
+        let chatPending = false;
+
+        function getAIResponse(message) {
+            const msg = message.toLowerCase();
+            if (msg.includes('btc') || msg.includes('bitcoin') || msg.includes('buy btc')) return AI_RESPONSES.btc;
+            if (msg.includes('eth') || msg.includes('ethereum')) return AI_RESPONSES.eth;
+            if (msg.includes('sol') || msg.includes('solana')) return AI_RESPONSES.sol;
+            if (msg.includes('rsi')) return AI_RESPONSES.rsi;
+            if (msg.includes('macd')) return AI_RESPONSES.macd;
+            if (msg.includes('market') || msg.includes('summary') || msg.includes('today')) return AI_RESPONSES.market;
+            if (msg.includes('compare') || msg.includes('vs') || msg.includes('versus')) return AI_RESPONSES.compare;
+            return AI_RESPONSES.default;
+        }
+
+        function addChatMessage(role, text) {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = `chat-msg ${role}`;
+            div.innerHTML = `
+                <div class="chat-avatar ${role}">${role === 'bot' ? '🤖' : '👤'}</div>
+                <div class="chat-bubble">${text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>')}</div>
+            `;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTyping() {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = 'chat-msg bot';
+            div.id = 'typing-indicator';
+            div.innerHTML = `
+                <div class="chat-avatar bot">🤖</div>
+                <div class="chat-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>
+            `;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function removeTyping() {
+            const el = document.getElementById('typing-indicator');
+            if (el) el.remove();
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text || chatPending) return;
+
+            addChatMessage('user', text);
+            input.value = '';
+            input.style.height = 'auto';
+            chatPending = true;
+            document.getElementById('chat-send-btn').disabled = true;
+            document.getElementById('chat-suggestions').style.display = 'none';
+
+            showTyping();
+
+            // Simulate AI thinking delay
+            const delay = 800 + Math.random() * 1200;
+            setTimeout(() => {
+                removeTyping();
+                const response = getAIResponse(text);
+                addChatMessage('bot', response);
+                chatPending = false;
+                document.getElementById('chat-send-btn').disabled = false;
+            }, delay);
+        }
+
+        function sendSuggestion(el) {
+            document.getElementById('chat-input').value = el.textContent;
+            sendMessage();
+        }
+
+        function handleChatKey(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+            // Auto-resize textarea
+            const el = e.target;
+            setTimeout(() => {
+                el.style.height = 'auto';
+                el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+            }, 0);
         }
 
         // ============================================================
