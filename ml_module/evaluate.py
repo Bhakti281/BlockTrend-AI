@@ -53,7 +53,7 @@ def evaluate_all_models(verbose: bool = True) -> Dict[str, Any]:
         X, y, test_size=0.2, random_state=42, stratify=y
     )
     
-    X_seq, y_seq = generate_sequence_data(n_samples=2000, seq_length=10, seed=42)
+    X_seq, y_seq = generate_sequence_data(n_samples=3000, seq_length=10, seed=42)
     seq_split = int(0.8 * len(y_seq))
     X_seq_train, X_seq_test = X_seq[:seq_split], X_seq[seq_split:]
     y_seq_train, y_seq_test = y_seq[:seq_split], y_seq[seq_split:]

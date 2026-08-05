@@ -195,8 +195,8 @@ def generate_latency_data(
     slow_rule4 = (concurrent_requests > 100) & (cache_hit == 0)
     labels[slow_rule1 | slow_rule2 | slow_rule3 | slow_rule4] = 2
     
-    # Flip 33% of labels for ~72% accuracy ceiling
-    flip_rate = 0.33
+    # Flip 35% of labels for ~72% accuracy ceiling
+    flip_rate = 0.35
     flip_mask = np.random.random(n_samples) < flip_rate
     random_labels = np.random.randint(0, 3, n_samples)
     labels = np.where(flip_mask, random_labels, labels)

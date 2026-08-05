@@ -33,7 +33,7 @@ class EnsemblePredictor:
     ):
         self.rf_model = RandomForestModel()
         self.xgb_model = XGBoostModel()
-        self.lstm_model = LSTMModel()
+        self.lstm_model = LSTMModel(seq_length=10, n_features=16)
         
         # Normalize weights
         total = rf_weight + xgb_weight + lstm_weight
@@ -60,7 +60,7 @@ class EnsemblePredictor:
         if verbose:
             print("\n[1/4] Generating training data...")
         X_tabular, y_tabular = generate_crypto_features(n_samples=10000, seed=42)
-        X_seq, y_seq = generate_sequence_data(n_samples=2000, seq_length=10, seed=42)
+        X_seq, y_seq = generate_sequence_data(n_samples=3000, seq_length=10, seed=42)
         
         # Train Random Forest
         if verbose:
@@ -77,7 +77,7 @@ class EnsemblePredictor:
             print("[4/4] Training Hybrid LSTM (64 units, 10-step sequences)...")
         lstm_history = self.lstm_model.fit(
             X_seq, y_seq,
-            epochs=40,
+            epochs=50,
             batch_size=64,
             validation_split=0.15,
         )
@@ -119,7 +119,7 @@ class EnsemblePredictor:
             seq_data = np.tile(X_tabular.values, (1, 1)).reshape(
                 len(X_tabular), 1, X_tabular.shape[1]
             )
-            seq_data = np.repeat(seq_data, 24, axis=1)
+            seq_data = np.repeat(seq_data, 10, axis=1)
             lstm_proba = self.lstm_model.predict_proba(seq_data)
         
         # Weighted ensemble
@@ -145,7 +145,7 @@ class EnsemblePredictor:
                 "models": [
                     {"name": "Random Forest", "vote": self.SIGNAL_MAP[rf_pred[i]], "weight": self.rf_weight, "confidence": float(np.max(rf_proba[i]))},
                     {"name": "XGBoost", "vote": self.SIGNAL_MAP[xgb_pred[i]], "weight": self.xgb_weight, "confidence": float(np.max(xgb_proba[i]))},
-                    {"name": "LSTM (24h)", "vote": self.SIGNAL_MAP[lstm_pred[i]], "weight": self.lstm_weight, "confidence": float(np.max(lstm_proba[i]))},
+                    {"name": "LSTM (Hybrid)", "vote": self.SIGNAL_MAP[lstm_pred[i]], "weight": self.lstm_weight, "confidence": float(np.max(lstm_proba[i]))},
                 ],
                 "probabilities": {
                     "SELL": float(ensemble_proba[i][0]),
