@@ -24,7 +24,10 @@ export const Route = createFileRoute("/_authenticated/candlestick")({
   head: () => ({
     meta: [
       { title: "Candlestick Charts — CryptoVision AI" },
-      { name: "description", content: "Interactive candlestick charts with EMA & Bollinger overlays." },
+      {
+        name: "description",
+        content: "Interactive candlestick charts with EMA & Bollinger overlays.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -46,12 +49,16 @@ function Candles() {
     queryKey: ["ohlc", coin.id, days],
     queryFn: () => ohlcFn({ data: { id: coin.id, days } }),
     refetchInterval: 60_000,
+    placeholderData: (prev) => prev,
+    staleTime: 30_000,
   });
 
   const { data: chartRows = [] } = useQuery({
     queryKey: ["chart", coin.id, days],
     queryFn: () => chartFn({ data: { id: coin.id, days } }),
     refetchInterval: 60_000,
+    placeholderData: (prev) => prev,
+    staleTime: 30_000,
   });
 
   const rows = useMemo(() => {
@@ -141,9 +148,24 @@ function Candles() {
             onValueChange={(v) => v && setOverlay(v as typeof overlay)}
             className="glass rounded-md p-0.5"
           >
-            <ToggleGroupItem value="ema" className="text-xs px-2.5 py-1 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">EMA</ToggleGroupItem>
-            <ToggleGroupItem value="bollinger" className="text-xs px-2.5 py-1 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">Bollinger</ToggleGroupItem>
-            <ToggleGroupItem value="none" className="text-xs px-2.5 py-1 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">None</ToggleGroupItem>
+            <ToggleGroupItem
+              value="ema"
+              className="text-xs px-2.5 py-1 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+            >
+              EMA
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="bollinger"
+              className="text-xs px-2.5 py-1 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+            >
+              Bollinger
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="none"
+              className="text-xs px-2.5 py-1 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+            >
+              None
+            </ToggleGroupItem>
           </ToggleGroup>
         </div>
       }
@@ -152,7 +174,13 @@ function Candles() {
         <div className="h-[440px] w-full">
           <ResponsiveContainer>
             <ComposedChart data={rows} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-              <XAxis dataKey="label" tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} tickLine={false} axisLine={false} minTickGap={24} />
+              <XAxis
+                dataKey="label"
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
+                tickLine={false}
+                axisLine={false}
+                minTickGap={24}
+              />
               <YAxis
                 domain={["auto", "auto"]}
                 tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
@@ -162,7 +190,12 @@ function Candles() {
                 tickFormatter={(v) => formatUsd(v as number)}
               />
               <Tooltip
-                contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
+                contentStyle={{
+                  background: "var(--popover)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
                 formatter={(v: number | string) => (typeof v === "number" ? formatUsd(v) : v)}
                 labelFormatter={(l) => `Date: ${l}`}
               />
@@ -187,15 +220,37 @@ function Candles() {
 
               {overlay === "ema" && (
                 <>
-                  <Line dataKey="ema20" stroke="var(--color-primary)" dot={false} strokeWidth={1.5} />
+                  <Line
+                    dataKey="ema20"
+                    stroke="var(--color-primary)"
+                    dot={false}
+                    strokeWidth={1.5}
+                  />
                   <Line dataKey="ema50" stroke="var(--chart-2)" dot={false} strokeWidth={1.5} />
                 </>
               )}
               {overlay === "bollinger" && (
                 <>
-                  <Line dataKey="bbUpper" stroke="var(--chart-2)" dot={false} strokeWidth={1} strokeDasharray="3 3" />
-                  <Line dataKey="bbMid" stroke="var(--color-primary)" dot={false} strokeWidth={1.5} />
-                  <Line dataKey="bbLower" stroke="var(--chart-2)" dot={false} strokeWidth={1} strokeDasharray="3 3" />
+                  <Line
+                    dataKey="bbUpper"
+                    stroke="var(--chart-2)"
+                    dot={false}
+                    strokeWidth={1}
+                    strokeDasharray="3 3"
+                  />
+                  <Line
+                    dataKey="bbMid"
+                    stroke="var(--color-primary)"
+                    dot={false}
+                    strokeWidth={1.5}
+                  />
+                  <Line
+                    dataKey="bbLower"
+                    stroke="var(--chart-2)"
+                    dot={false}
+                    strokeWidth={1}
+                    strokeDasharray="3 3"
+                  />
                 </>
               )}
               <ReferenceLine y={0} stroke="transparent" />
@@ -206,10 +261,21 @@ function Candles() {
         <div className="mt-4 h-32">
           <ResponsiveContainer>
             <ComposedChart data={volumeRows}>
-              <XAxis dataKey="label" tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} tickLine={false} axisLine={false} minTickGap={24} />
+              <XAxis
+                dataKey="label"
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
+                tickLine={false}
+                axisLine={false}
+                minTickGap={24}
+              />
               <YAxis hide />
               <Tooltip
-                contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
+                contentStyle={{
+                  background: "var(--popover)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
                 formatter={(v: number | string) => (typeof v === "number" ? formatUsd(v) : v)}
               />
               <Bar dataKey="v" fill="var(--color-primary)" opacity={0.55} radius={[4, 4, 0, 0]} />

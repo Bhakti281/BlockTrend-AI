@@ -29,11 +29,16 @@ function Dashboard() {
     queryKey: ["markets", ids.join(",")],
     queryFn: () => fetch({ data: { ids } }),
     refetchInterval: 30_000,
+    // Keep previous data visible during refetch to avoid layout shift
+    placeholderData: (prev) => prev,
+    staleTime: 15_000,
   });
 
   const totalCap = data.reduce((a, c) => a + c.market_cap, 0);
   const totalVol = data.reduce((a, c) => a + c.total_volume, 0);
-  const avgChange = data.length ? data.reduce((a, c) => a + c.price_change_percentage_24h, 0) / data.length : 0;
+  const avgChange = data.length
+    ? data.reduce((a, c) => a + c.price_change_percentage_24h, 0) / data.length
+    : 0;
   const bullish = data.filter((c) => c.price_change_percentage_24h > 0).length;
 
   return (
@@ -41,7 +46,11 @@ function Dashboard() {
       title="Market command center"
       subtitle="Live crypto overview, AI signals, and portfolio pulse — refreshed every 30 seconds."
       actions={
-        <Button asChild size="sm" className="bg-gradient-to-r from-primary to-[oklch(0.7_0.19_260)] text-primary-foreground">
+        <Button
+          asChild
+          size="sm"
+          className="bg-gradient-to-r from-primary to-[oklch(0.7_0.19_260)] text-primary-foreground"
+        >
           <Link to="/assistant">
             Ask the AI <Bot className="ml-1.5 h-4 w-4" />
           </Link>
@@ -49,7 +58,12 @@ function Dashboard() {
       }
     >
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Total market cap" value={formatUsd(totalCap)} sub={formatPct(avgChange)} up={avgChange >= 0} />
+        <Stat
+          label="Total market cap"
+          value={formatUsd(totalCap)}
+          sub={formatPct(avgChange)}
+          up={avgChange >= 0}
+        />
         <Stat label="24h volume" value={formatUsd(totalVol)} sub={`${data.length} coins`} />
         <Stat label="Bullish signals" value={`${bullish} / ${data.length}`} sub="AI ensemble" />
         <Stat label="AI confidence" value="87%" sub="LSTM 24h" glow />
@@ -142,7 +156,9 @@ function Dashboard() {
             <p className="mt-1 text-xs text-muted-foreground">FinBERT · 128 headlines</p>
             <div className="mt-4 h-16">
               <ResponsiveContainer>
-                <LineChart data={Array.from({ length: 24 }, (_, i) => ({ y: 0.4 + Math.sin(i / 3) * 0.3 }))}>
+                <LineChart
+                  data={Array.from({ length: 24 }, (_, i) => ({ y: 0.4 + Math.sin(i / 3) * 0.3 }))}
+                >
                   <Line dataKey="y" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
@@ -187,7 +203,11 @@ function Stat({
       {sub !== undefined && (
         <div
           className={`mt-1 text-xs ${
-            up === undefined ? "text-muted-foreground" : up ? "text-[color:var(--bull)]" : "text-[color:var(--bear)]"
+            up === undefined
+              ? "text-muted-foreground"
+              : up
+                ? "text-[color:var(--bull)]"
+                : "text-[color:var(--bear)]"
           }`}
         >
           {sub}
@@ -225,8 +245,16 @@ function CoinMini({ coin }: { coin: Awaited<ReturnType<typeof fetchMarkets>>[num
           <AreaChart data={spark}>
             <defs>
               <linearGradient id={`g-${coin.id}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={up ? "var(--bull)" : "var(--bear)"} stopOpacity={0.5} />
-                <stop offset="100%" stopColor={up ? "var(--bull)" : "var(--bear)"} stopOpacity={0} />
+                <stop
+                  offset="0%"
+                  stopColor={up ? "var(--bull)" : "var(--bear)"}
+                  stopOpacity={0.5}
+                />
+                <stop
+                  offset="100%"
+                  stopColor={up ? "var(--bull)" : "var(--bear)"}
+                  stopOpacity={0}
+                />
               </linearGradient>
             </defs>
             <Area

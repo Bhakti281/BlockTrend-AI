@@ -29,25 +29,39 @@ export const askAssistant = createServerFn({ method: "POST" })
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Missing LOVABLE_API_KEY");
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "Lovable-API-Key": key,
-      },
-      body: JSON.stringify({
-        model: "openai/gpt-5.6-sol",
-        reasoning_effort: "none",
-        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...data.messages],
-      }),
-    });
+    // Use AbortController for timeout — prevents hanging requests
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30_000);
 
-    if (res.status === 429) throw new Error("Rate limit reached. Please wait a moment and try again.");
-    if (res.status === 402) throw new Error("AI credits exhausted. Please add credits to continue.");
-    if (!res.ok) throw new Error(`AI gateway error ${res.status}`);
+    try {
+      // Trim message history to last 20 messages to reduce payload size and latency
+      const trimmedMessages = data.messages.slice(-20);
 
-    const j = (await res.json()) as {
-      choices: { message: { content: string } }[];
-    };
-    return { text: j.choices?.[0]?.message?.content ?? "" };
+      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "Lovable-API-Key": key,
+        },
+        body: JSON.stringify({
+          model: "openai/gpt-5.6-sol",
+          reasoning_effort: "none",
+          messages: [{ role: "system", content: SYSTEM_PROMPT }, ...trimmedMessages],
+        }),
+        signal: controller.signal,
+      });
+
+      if (res.status === 429)
+        throw new Error("Rate limit reached. Please wait a moment and try again.");
+      if (res.status === 402)
+        throw new Error("AI credits exhausted. Please add credits to continue.");
+      if (!res.ok) throw new Error(`AI gateway error ${res.status}`);
+
+      const j = (await res.json()) as {
+        choices: { message: { content: string } }[];
+      };
+      return { text: j.choices?.[0]?.message?.content ?? "" };
+    } finally {
+      clearTimeout(timeout);
+    }
   });

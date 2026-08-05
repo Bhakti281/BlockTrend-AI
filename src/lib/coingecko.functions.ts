@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { cachedFetch } from "./api-cache";
 
 const CG = "https://api.coingecko.com/api/v3";
 
@@ -26,15 +27,21 @@ export type MarketRow = {
   sparkline_in_7d?: { price: number[] };
 };
 
+// Cache TTLs optimized per endpoint volatility:
+// - Markets: 15s (live prices need freshness)
+// - OHLC: 60s (candle data changes less frequently)
+// - Chart: 30s (balance between freshness and performance)
+const MARKETS_TTL = 15_000;
+const OHLC_TTL = 60_000;
+const CHART_TTL = 30_000;
+
 export const fetchMarkets = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) => IdsSchema.parse(data))
   .handler(async ({ data }): Promise<MarketRow[]> => {
     const url =
       `${CG}/coins/markets?vs_currency=usd&ids=${data.ids.join(",")}` +
       `&order=market_cap_desc&per_page=20&page=1&sparkline=true&price_change_percentage=24h`;
-    const res = await fetch(url, { headers: { accept: "application/json" } });
-    if (!res.ok) throw new Error(`CoinGecko markets ${res.status}`);
-    return (await res.json()) as MarketRow[];
+    return cachedFetch<MarketRow[]>(url, { headers: { accept: "application/json" } }, MARKETS_TTL);
   });
 
 const OhlcSchema = z.object({
@@ -47,11 +54,12 @@ export type OhlcPoint = { t: number; o: number; h: number; l: number; c: number 
 export const fetchOhlc = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) => OhlcSchema.parse(data))
   .handler(async ({ data }): Promise<OhlcPoint[]> => {
-    const res = await fetch(`${CG}/coins/${data.id}/ohlc?vs_currency=usd&days=${data.days}`, {
-      headers: { accept: "application/json" },
-    });
-    if (!res.ok) throw new Error(`CoinGecko ohlc ${res.status}`);
-    const rows = (await res.json()) as [number, number, number, number, number][];
+    const url = `${CG}/coins/${data.id}/ohlc?vs_currency=usd&days=${data.days}`;
+    const rows = await cachedFetch<[number, number, number, number, number][]>(
+      url,
+      { headers: { accept: "application/json" } },
+      OHLC_TTL,
+    );
     return rows.map(([t, o, h, l, c]) => ({ t, o, h, l, c }));
   });
 
@@ -65,15 +73,11 @@ export type ChartPoint = { t: number; price: number; volume: number };
 export const fetchChart = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) => ChartSchema.parse(data))
   .handler(async ({ data }): Promise<ChartPoint[]> => {
-    const res = await fetch(
-      `${CG}/coins/${data.id}/market_chart?vs_currency=usd&days=${data.days}`,
-      { headers: { accept: "application/json" } },
-    );
-    if (!res.ok) throw new Error(`CoinGecko chart ${res.status}`);
-    const j = (await res.json()) as {
+    const url = `${CG}/coins/${data.id}/market_chart?vs_currency=usd&days=${data.days}`;
+    const j = await cachedFetch<{
       prices: [number, number][];
       total_volumes: [number, number][];
-    };
+    }>(url, { headers: { accept: "application/json" } }, CHART_TTL);
     return j.prices.map(([t, price], i) => ({
       t,
       price,

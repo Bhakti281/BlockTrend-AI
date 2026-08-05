@@ -6,7 +6,8 @@ import { fetchChart, COIN_META } from "@/lib/coingecko.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { rsi, macd, ema, sma, bollinger, last } from "@/lib/indicators";
+import { last } from "@/lib/indicators";
+import { computeIndicators } from "@/lib/indicators-cache";
 import { ResponsiveContainer, LineChart, Line, BarChart, Bar, Cell } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown } from "lucide-react";
@@ -32,32 +33,15 @@ function Indicators() {
     queryKey: ["ind-chart", coin.id],
     queryFn: () => chartFn({ data: { id: coin.id, days: 60 } }),
     refetchInterval: 60_000,
+    // Keep previous coin's data while loading new coin to avoid flash
+    placeholderData: (prev) => prev,
+    staleTime: 30_000,
   });
 
   const closes = useMemo(() => data.map((d) => d.price), [data]);
   const vols = useMemo(() => data.map((d) => d.volume), [data]);
-  const ind = useMemo(() => {
-    const r = rsi(closes, 14);
-    const m = macd(closes);
-    const e20 = ema(closes, 20);
-    const e50 = ema(closes, 50);
-    const s20 = sma(closes, 20);
-    const bb = bollinger(closes, 20, 2);
-    return {
-      rsi: r,
-      macd: m,
-      ema20: e20,
-      ema50: e50,
-      sma20: s20,
-      bb,
-      rsiLast: last(r) ?? 50,
-      macdLast: last(m.macd) ?? 0,
-      histLast: last(m.hist) ?? 0,
-      ema20Last: last(e20) ?? 0,
-      ema50Last: last(e50) ?? 0,
-      priceLast: closes[closes.length - 1] ?? 0,
-    };
-  }, [closes]);
+  // Use memoized indicator cache — avoids recomputation when data hasn't changed
+  const ind = useMemo(() => computeIndicators(closes), [closes]);
 
   const cards = [
     {
@@ -74,13 +58,16 @@ function Indicators() {
                 ? { label: "Bearish", bear: true }
                 : { label: "Neutral" },
       chart: <MiniLine data={ind.rsi.map((y) => y ?? 0)} refLines={[30, 70]} />,
-      explain: "Relative Strength Index — measures momentum on 0–100. >70 overbought, <30 oversold.",
+      explain:
+        "Relative Strength Index — measures momentum on 0–100. >70 overbought, <30 oversold.",
     },
     {
       title: "MACD",
       value: ind.macdLast.toFixed(3),
       trend:
-        ind.histLast > 0 ? { label: "Bullish crossover", bull: true } : { label: "Bearish", bear: true },
+        ind.histLast > 0
+          ? { label: "Bullish crossover", bull: true }
+          : { label: "Bearish", bear: true },
       chart: <MiniBars data={ind.macd.hist.map((y) => y ?? 0)} />,
       explain: "Moving Average Convergence Divergence — trend & momentum via EMA differences.",
     },
@@ -88,7 +75,9 @@ function Indicators() {
       title: "EMA 20 / 50",
       value: `${ind.ema20Last.toFixed(2)} / ${ind.ema50Last.toFixed(2)}`,
       trend:
-        ind.ema20Last > ind.ema50Last ? { label: "Golden cross", bull: true } : { label: "Death cross", bear: true },
+        ind.ema20Last > ind.ema50Last
+          ? { label: "Golden cross", bull: true }
+          : { label: "Death cross", bear: true },
       chart: <MiniLine data={ind.ema20.map((y) => y ?? 0)} />,
       explain: "Exponential Moving Averages — react faster than SMA to recent prices.",
     },
@@ -104,7 +93,7 @@ function Indicators() {
     },
     {
       title: "Bollinger Bands",
-      value: `±${((((last(ind.bb.upper) ?? 0) - (last(ind.bb.lower) ?? 0)) / 2) || 0).toFixed(2)}`,
+      value: `±${(((last(ind.bb.upper) ?? 0) - (last(ind.bb.lower) ?? 0)) / 2 || 0).toFixed(2)}`,
       trend:
         ind.priceLast > (last(ind.bb.upper) ?? Infinity)
           ? { label: "Breakout up", bull: true }
@@ -128,21 +117,30 @@ function Indicators() {
       title: "OBV (proxy)",
       value: (vols.reduce((a, b) => a + b, 0) / 1e6).toFixed(1) + "M",
       trend: { label: "Cumulative", bull: true },
-      chart: <MiniLine data={vols.map((_, i) => vols.slice(0, i + 1).reduce((a, b) => a + b, 0))} />,
+      chart: (
+        <MiniLine data={vols.map((_, i) => vols.slice(0, i + 1).reduce((a, b) => a + b, 0))} />
+      ),
       explain: "On-Balance Volume — cumulative flow used for confirmation.",
     },
     {
       title: "ATR (14, proxy)",
-      value: (closes.slice(-14).reduce((a, b, i, arr) => (i ? a + Math.abs(b - arr[i - 1]) : 0), 0) / 14).toFixed(2),
+      value: (
+        closes.slice(-14).reduce((a, b, i, arr) => (i ? a + Math.abs(b - arr[i - 1]) : 0), 0) / 14
+      ).toFixed(2),
       trend: { label: "Volatility" },
       chart: <MiniLine data={closes} />,
       explain: "Average True Range — average size of recent moves. Rising = volatile.",
     },
     {
       title: "VWAP (proxy)",
-      value: (closes.reduce((a, b, i) => a + b * (vols[i] || 0), 0) / (vols.reduce((a, b) => a + b, 0) || 1)).toFixed(2),
+      value: (
+        closes.reduce((a, b, i) => a + b * (vols[i] || 0), 0) /
+        (vols.reduce((a, b) => a + b, 0) || 1)
+      ).toFixed(2),
       trend:
-        ind.priceLast > closes.reduce((a, b, i) => a + b * (vols[i] || 0), 0) / (vols.reduce((a, b) => a + b, 0) || 1)
+        ind.priceLast >
+        closes.reduce((a, b, i) => a + b * (vols[i] || 0), 0) /
+          (vols.reduce((a, b) => a + b, 0) || 1)
           ? { label: "Above VWAP", bull: true }
           : { label: "Below VWAP", bear: true },
       chart: <MiniLine data={closes} />,

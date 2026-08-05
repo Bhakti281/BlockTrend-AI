@@ -14,13 +14,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend } from "recharts";
+import {
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
 export const Route = createFileRoute("/_authenticated/multi-coin")({
   head: () => ({
     meta: [
       { title: "Multi-Coin Analysis — CryptoVision AI" },
-      { name: "description", content: "Compare price, volume, indicators, prediction, and risk across coins." },
+      {
+        name: "description",
+        content: "Compare price, volume, indicators, prediction, and risk across coins.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -29,6 +40,7 @@ export const Route = createFileRoute("/_authenticated/multi-coin")({
 
 const ids = Object.values(COIN_META).map((c) => c.id);
 
+// Radar data is static — defined once outside component to avoid re-creation
 const radar = [
   { metric: "Momentum", BTC: 82, ETH: 74, SOL: 60, ADA: 40, BNB: 68, XRP: 55 },
   { metric: "Volume", BTC: 88, ETH: 80, SOL: 66, ADA: 45, BNB: 62, XRP: 51 },
@@ -37,14 +49,24 @@ const radar = [
   { metric: "Trend", BTC: 84, ETH: 72, SOL: 63, ADA: 38, BNB: 70, XRP: 50 },
 ];
 
-const colors = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)", "var(--color-primary)"];
+const colors = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+  "var(--color-primary)",
+];
 
 function MultiCoin() {
   const fetch = useServerFn(fetchMarkets);
   const { data = [] } = useQuery({
-    queryKey: ["multicoin", ids.join(",")],
+    // Share cache with dashboard/live-prices for instant navigation
+    queryKey: ["markets", ids.join(",")],
     queryFn: () => fetch({ data: { ids } }),
     refetchInterval: 30_000,
+    placeholderData: (prev) => prev,
+    staleTime: 15_000,
   });
 
   return (
@@ -68,7 +90,8 @@ function MultiCoin() {
           <TableBody>
             {data.map((c, i) => {
               const up = c.price_change_percentage_24h >= 0;
-              const meta = ["BUY", "BUY", "HOLD", "SELL", "BUY", "HOLD"][i % 6] as "BUY" | "SELL" | "HOLD";
+              const meta = ["BUY", "BUY", "HOLD", "SELL", "BUY", "HOLD"][i % 6] as
+                "BUY" | "SELL" | "HOLD";
               const cls =
                 meta === "BUY"
                   ? "border-[color:var(--bull)]/30 bg-[color:var(--bull)]/15 text-[color:var(--bull)]"
@@ -114,13 +137,18 @@ function MultiCoin() {
       <Card className="glass mt-6 border-border/60 p-6">
         <div className="mb-4">
           <h3 className="font-display text-base font-semibold">Multi-factor radar</h3>
-          <p className="text-xs text-muted-foreground">Momentum, volume, sentiment, volatility, trend — normalized.</p>
+          <p className="text-xs text-muted-foreground">
+            Momentum, volume, sentiment, volatility, trend — normalized.
+          </p>
         </div>
         <div className="h-96">
           <ResponsiveContainer>
             <RadarChart data={radar}>
               <PolarGrid stroke="var(--border)" />
-              <PolarAngleAxis dataKey="metric" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} />
+              <PolarAngleAxis
+                dataKey="metric"
+                tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+              />
               <PolarRadiusAxis tick={false} axisLine={false} />
               {Object.keys(COIN_META).map((s, i) => (
                 <Radar key={s} dataKey={s} stroke={colors[i]} fill={colors[i]} fillOpacity={0.15} />

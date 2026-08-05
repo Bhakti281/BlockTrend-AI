@@ -22,10 +22,18 @@ const ids = Object.values(COIN_META).map((c) => c.id);
 
 function LivePrices() {
   const fetch = useServerFn(fetchMarkets);
-  const { data = [], isLoading, dataUpdatedAt } = useQuery({
-    queryKey: ["live-markets", ids.join(",")],
+  const {
+    data = [],
+    isLoading,
+    dataUpdatedAt,
+  } = useQuery({
+    // Use same query key as dashboard to share cached data
+    queryKey: ["markets", ids.join(",")],
     queryFn: () => fetch({ data: { ids } }),
     refetchInterval: 15_000,
+    // Keep previous data visible during refetch
+    placeholderData: (prev) => prev,
+    staleTime: 10_000,
   });
 
   return (
